@@ -6,59 +6,11 @@
     <meta charset="utf-8" />    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel='stylesheet' type="text/css" href='css/style.css'>
+    <link rel='stylesheet' type="text/css" href='css/v3.css'>
     <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="../src/d3.v2.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="../src/v3.js" type="text/javascript" charset="utf-8"></script>
-    <style>
-    text {
-      fill: #ccc;
-    }
 
-    .line{
-      stroke-width: 2px;
-      stroke: #4183C4;
-      fill:none;
-      fill-opacity: 0.8;
-      stroke-opacity: 0.6;
-    }
-
-    .area{
-      stroke-width: 2px;
-      stroke: #4183C4;
-      fill:#4183c4;
-      fill-opacity: 0.2;
-      stroke-opacity: 0.6;
-    }
-
-    .tickx line,
-    .ticky line {
-      stroke-width: 1px;
-      stroke: #666;
-      stroke-opacity: 0.4;
-      shape-rendering: crispedges;
-    }
-
-    .tickx text,
-    .ticky text {
-      fill: #444;
-      font-size: 10px;
-    }
-
-    .point {
-      fill: rgb(200,0,0);
-      stroke-width: 2px;
-      stroke: rgb(255,255,255);
-      fill-opacity: 0.8;
-      stroke-opacity: 0.6;
-    }
-
-    .point.max {
-      fill: rgb(51, 156, 255);
-      stroke-width: 2px;
-    }
-
-    /* @end */
-    </style>
   </head>
   <body>
   <div class="left">
@@ -189,22 +141,22 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
         <h1>Line Charts</h1>
         <div class="subcategory">
           <h2>Basic Line Chart</h2>
-          <div id='chart' width="600" height="300"/></div>
+          <div id='chart' width="800" height="300"/></div>
           
-          <h2>Basic Line Chart</h2>
-          <div id='chart1' width="600" height="300"/></div>
+          <h2>Basic Line Chart (Axis Inverted)</h2>
+          <div id='chart1' width="800" height="300"/></div>
 
-          <h2>Basic Line Chart</h2>
-          <div id='chart2' width="600" height="300"/></div>
+          <h2>Basic Area Chart</h2>
+          <div id='chart2' width="800" height="300"/></div>
 
-          <h2>Basic Line Chart</h2>
-          <div id='chart3' width="600" height="300"/></div>
+          <h2>Basic Area Chart (Axis Inverted)</h2>
+          <div id='chart3' width="800" height="300"/></div>
 
-          <h2>Basic Line Chart</h2>
-          <div id='chart4' width="600" height="300"/></div>
+          <h2>Basic Column Chart</h2>
+          <div id='chart4' width="800" height="300"/></div>
 
-          <h2>Basic Line Chart</h2>
-          <div id='chart5' width="600" height="300"/></div>
+          <h2>Basic Column Chart (Axis Inverted)</h2>
+          
       
         </div>
       </div >
@@ -257,7 +209,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   ],
           category:["2010","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022"]
       },
-      {type:"Area",axisInverted:true,margin:[50,50,50,50]}
+      {type:"Line",axisInverted:true,margin:[50,50,50,50]}
     );
     chart1.draw();
 
@@ -269,7 +221,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   ],
           category:["2010","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022"]
       },
-      {type:"Line",axisInverted:true,margin:[50,50,50,50]}
+      {type:"Area",margin:[50,50,50,50]}
     );
     chart2.draw();
 
@@ -281,19 +233,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                   ],
           category:["2010","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022"]
       },
-      {type:"Area",margin:[50,50,50,50]}
+      {type:"Area",axisInverted:true,margin:[50,50,50,50]}
     );
     chart3.draw();
 
     var chart4 = new Chart("#chart4",{
           series:[
-                   [{val:3},{val:7.3}, {val:9.8}, {val:1},{val:3.5},{val:6.3}, {val:19.8}, {val:1},{val:3.5},{val:4.3}, {val:16.8}, {val:1.5}],
-                   [{val:2},{val:9.3}, {val:1.8}, {val:1},{val:3.5},{val:6.3}, {val:19.8}, {val:1},{val:3},{val:7.3}, {val:9.8},{val:7.4}],
-                   [{val:3.5},{val:6.3}, {val:19.8}, {val:1}, {val:2},{val:9.3}, {val:1.8}, {val:1.3},{val:2.3},{val:5.3}, {val:7.8},{val:-50.6}]
+                   [{val:6.3}, {val:19.8}, {val:1},{val:3.5},{val:4.3}, {val:16.8}, {val:1.5}],
+                   [{val:6.3}, {val:19.8}, {val:1},{val:3},{val:7.3}, {val:9.8},{val:7.4}],
+                   [{val:9.3}, {val:1.8}, {val:1.3},{val:2.3},{val:5.3}, {val:7.8},{val:-50.6}]
                   ],
-          category:["2010","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022"]
+          category:["2016","2017","2018","2019","2020","2021","2022"]
       },
-      {type:"Line",axisInverted:true,margin:[50,50,50,50]}
+      {type:"Column",threshold:0,margin:[50,50,50,50]}
     );
     chart4.draw();
 
