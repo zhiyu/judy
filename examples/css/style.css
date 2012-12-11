@@ -1,15 +1,15 @@
 html,body,h1,h2,h3,h4,h5,h6,hr,p,dl,dt,dd,ul,ol,li,pre,button,input,textarea,th,td{ margin:0; padding:0; }
-html,body {font-size: 12px;font-family:Helvetica;background:#fff;height: 100%;background: #111;}
+html,body {font-size: 12px;font-family:Helvetica;background:#fff;height: 100%;background: #f4f4f4;}
 h1,h2,h3,h4,h5,h6{font-size:100%;}
 h2{padding-bottom:10px;}
 ul,ol,li{list-style-type:none; overflow: hidden;_zoom:1;}
 img{ border: 0; vertical-align: top;}
 em{ font-style: normal; color: #f00; }
 table {border-collapse:collapse;border-spacing:0;}
-a:link {color: #98a594; text-decoration:underline;}
-a:visited {color: #98a594;text-decoration:none;}
-a:hover {color: #98a594; text-decoration: underline; }
-a:active {color: #98a594;text-decoration:none;}
+a:link {color: #3780AA; text-decoration:underline;}
+a:visited {color: #3780AA;text-decoration:none;}
+a:hover {color: #3780AA; text-decoration: underline; }
+a:active {color: #3780AA;text-decoration:none;}
 a{outline:none;}
 img,a img{ border: 0; vertical-align: middle; }
 input,select{ vertical-align: middle; margin: 0;}
@@ -57,21 +57,17 @@ a.btn:hover{
 .left{
   float: left;
   width:200px;
-  background:#98a594;
-  height: 100%;
 }
 
 .left .logo{
-    background: #222;
-    height:40px;color:#98a594;
+    height:40px;
+    color:#000;
     line-height: 40px;
-    font-size: 14px;
+    font-size: 18px;
     text-indent: 10px;
-    border-bottom:1px solid #333;
     font-weight: bold;
   }
 .left .apps{
-    background:#333;
     border-bottom:1px solid #444;
     border-top:1px solid #444;color:#98a594;font-size: 14px;
     text-indent: 10px;
@@ -86,66 +82,61 @@ a.btn:hover{
 }
 
 .left .appsWraper{
-  background: #000;
   height: 100px;
   display: none;
 }
 
 .left div {
-  background: #222;
-  margin-right: 5px;
+  margin: 0px 0px;
   height: 100%;
 }
 
 .left ul li{
-  line-height: 35px;
+  line-height: 30px;
 }
 .left ul li a {
 	display: block;
 	text-decoration: none;
   text-indent: 10px;
-  color:#999;
-  font-size: 12px;
-  border-bottom: 1px solid #222;
+  color:#555;
+  font-size: 14px;
 }
 .left ul li a:hover{
-  background: #98a594;
   color:#000;
 }
-.left ul li a.selected{background: #98a594;color:#000;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);}
+.left ul li a.selected{
+  color:#000;
+}
 .left ul li a.selected:hover{
 }
 
 .left .category ul {
-  background: #111;
   margin-right: 0px;
-  display: none;
 }
 .left .category ul li a{
   text-indent: 25px;
-  color:#999;
+  color:#666;
+  font-size: 12px;
+  border-top: none;
+  text-decoration: underline;
 }
 .left .category ul li a:hover{
   text-indent: 25px;
-  background: #000;
-  color: #98a594;
+  color: #000;
+  text-decoration: underline;
 }
 .left .category ul li a.selected{
   text-indent: 25px;
-  background: #000;
-  color: #98a594;
-  cursor: pointer;
-  text-shadow: none;
+  color: #000;
+  text-decoration: underline;
 }
 .right{
   position: absolute;
   left:200px;
   top:0px;
   right: 0px;
-  height: 100%;
-  color:#999;
   overflow-y:auto; 
+  background: #ffffff;
 }
 
 .right .category{
@@ -153,22 +144,21 @@ a.btn:hover{
 }
 
 .right h1{
-	  color:#98a594;
-    background: #222;
     font-size: 14px;
     line-height: 40px;
-    text-indent: 30px;
-    border-bottom: 1px solid #98a594;
+    text-indent: 10px;
+    border-bottom: 1px solid #e7e7e7;
 }
 .right h2{
-    border-bottom: 1px solid #222;
+    color:#555;
+    border-bottom: 1px dashed #e7e7e7;
     font-size: 14px;
 }
 .right .subcategory{
 	margin:30px;
 }
 .right .subcategory div{
-  padding:10px 10px 0px 10px;
+  padding:20px 0px 0px 0px;
   line-height: 20px;
   color:#666;
 }

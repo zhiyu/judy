@@ -531,8 +531,7 @@ ColumnChart.prototype = {
         var margin = 8;
         var gw = w/dc;
         var sw = (gw-margin*(sc+1))/sc;
-       
-
+        
         for(var i=0;i<data.series.length;i++){
             var area = this.context.chart.selectAll('area'+i).data([data.series[i]]).enter().append("svg:path");
             if(self.context.options.axisInverted==true){
@@ -558,7 +557,7 @@ ColumnChart.prototype = {
                             return self.context.y()(idx);
                         else
                             return self.context.y()(d.val);
-                    }).on('mouseover', function() {
+                    }).on('mouseover', function(x,y) {
                       return d3.select(this).transition().attr('r', 5);
                     }).on('mouseout', function() {
                       return d3.select(this).transition().attr('r', 3);
