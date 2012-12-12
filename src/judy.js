@@ -18,7 +18,7 @@ function decimal(val, position) {
 
 
 var _options = {
-    width:800,
+    width:600,
     height:400,
     margin:[20,20,40,80],
     bgAttr:{
@@ -66,7 +66,7 @@ var _options = {
     formatTickX: null,
     lineAttr:{
       "stroke-width":4,
-      "opacity":1       
+      "opacity":0.8       
     },
     lineHoverAttr:{
       "stroke-width":4,
@@ -80,7 +80,7 @@ var _options = {
     },
     dotHoverAttr:{
       "stroke-width":2,
-      "r":5,
+      "r":6,
       "opacity":1
     },
     colors:[
@@ -365,6 +365,8 @@ LineRender.prototype = {
             tracker.attr(self._options.trackerAttr);
             var els = [];
             bg.mousemove(function(e){
+                var offsetX = e.offsetX?e.offsetX:e.layerX;
+
                 for(var i=0;i<els.length;i++){
                     for(var j = 0; j < els[i].events.length; j++) {
                         if (els[i].events[j].name == 'mouseout') {
@@ -373,7 +375,7 @@ LineRender.prototype = {
                     }
                 }
 
-                els = self._context.getDots(e.offsetX,0);
+                els = self._context.getDots(offsetX, 0);
                 for(var i=0;i<els.length;i++){
                     for(var j = 0; j < els[i].events.length; j++) {
                         if (els[i].events[j].name == 'mouseover') {
@@ -381,8 +383,9 @@ LineRender.prototype = {
                         }
                     }
                 }
-                if(e.offsetX >= left && e.offsetX <= right){
-                    tracker.attr("path","M"+e.offsetX+","+self._options.margin[0]+"L"+e.offsetX+","+minY); 
+              
+                if(offsetX >= left && offsetX <= right){
+                    tracker.attr("path","M"+offsetX+","+self._options.margin[0]+"L"+offsetX+","+minY); 
                 }
             });
         }
@@ -480,18 +483,20 @@ LineRender.prototype = {
                     pathString += "S"+(x1+ix)+","+y+" "+x+","+y;   
                 }
             }
-            path.animate({path:pathString}, self._options.timing);
+            path.animate({path:pathString}, self._options.timing,"<");
 
             for(var j=0;j<dot.length;j++){
                 var _dot  = dot[j];
                 var y = self._context.getPixY(self._context.getY(data,j));
-                _dot.animate({"cy":y}, self._options.timing);
+                _dot.animate({"cy":y}, self._options.timing, "<");
             }   
         }
 
+        this.drawTips(100,100,200,50,10,10);
     },
-    drawTips: function(){
-
+    drawTips: function (x, y, w, h, wv, hv, color) {
+        var text = this._gc.text(100,100,"<a href='/'>test</a>");
+        
     }
 }
 
