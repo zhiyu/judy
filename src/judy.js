@@ -320,10 +320,10 @@ LineRender.prototype = {
         self._gc = self._context.getGC();
         self.init();
         self.buildAxes();
+        self.drawBackground();
         self.buildChart();
         self.drawAxes();
         setTimeout(function(){
-            self.drawBackground();
             self.drawChart();   
         },self._options.timing);
          
@@ -375,7 +375,6 @@ LineRender.prototype = {
                 _dot.data("index",j);
                 _dot.data("data",data);
                 _dot.mouseover(function(){
-
                     this.animate(self._options.dotHoverAttr, self._options.dotTiming);
                     var box = this.getBBox();
                     self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [self._context.getTipText(this.data("data"), this.data("index"))]);
@@ -384,9 +383,7 @@ LineRender.prototype = {
                 });
                 dot.push(_dot);
             }
-
             path.attr("path", pathString);
-
             //save dots
             self._context.elements.dots.push(dot);
         }
@@ -418,7 +415,7 @@ LineRender.prototype = {
                     }
                 }
             }
-            
+
             if(self._options.showTracker){
                 els = self._context.getDots(0, offsetX);
                 self.clearTips();
@@ -430,7 +427,6 @@ LineRender.prototype = {
                         }
                     }
                 }
-
                 //draw tracker
                 if(offsetX >= left && offsetX <= right){
                     if(self._options.showTracker){
