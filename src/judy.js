@@ -57,26 +57,39 @@ var _options = {
     },
     tickXAttr:{
       "font-size":12,
-      fill:"#666666",
+      "fill":"#666666",
       "opacity":0.8
     },
     getTickY: null,
     formatTickY: null,
     getTickX: null,
     formatTickX: null,
+    tipAttr:{
+      "stroke-width":2,
+      "opacity":0.8,
+      "fill":"#f4f4f4",
+      "stroke":"#666666",
+      "padding":5,
+      "textAttr":{
+        "font-size":12,
+        "fill":"#000000",
+        "opacity":1,
+        "text-anchor":"start"
+      }
+    },
+    getTipText:null,
     lineAttr:{
       "stroke-width":4,
-      "opacity":0.8       
+      "opacity":0.9       
     },
     lineHoverAttr:{
       "stroke-width":4,
-      "opacity":0.8       
+      "opacity":0.9       
     },
     dotAttr:{
       "stroke-width":2,
       "r":4,
-      "opacity":1,
-      "cursor":"pointer"
+      "opacity":1
     },
     dotHoverAttr:{
       "stroke-width":2,
@@ -93,22 +106,15 @@ var _options = {
 };
 
 function Chart(container, type, data, options){
-    var self = this;
-
     utils.extend(_options, options);
-    
+    this._options = _options
 
-    self.setSize({w: _options.width, h: _options.height});
-    self.setType(type);
-    self.setData(data);
-    self.setOptions(_options);
-    self.setMax();
-    self.setMin();
+    var gc = Raphael(container,_options.width, _options.height);
+    this.setGC(gc);
 
-    var gc = Raphael(container,self._options.width, self._options.height);
-    self.setGC(gc);
-
-    self.init();
+    this.setType(type);
+    this.setData(data);
+    this.init();
 }
 
 Chart.prototype = {
@@ -118,6 +124,11 @@ Chart.prototype = {
             ticks:[[[],[]],[[],[]]], 
             dots:[]     
         }
+
+        this.setSize({width: _options.width, height: _options.height});
+        this.setFrame();
+        this.setMax();
+        this.setMin();
     },
     setSize: function (size) {
         this._size = size;
@@ -130,9 +141,6 @@ Chart.prototype = {
     },
     getGC: function () {
         return this._gc;
-    },
-    setOptions: function (options) {
-        this._options = options;
     },
     setType: function (type) {
         this._type = type;
@@ -149,27 +157,17 @@ Chart.prototype = {
     draw: function(){
         this._render.draw(this, this._data, this._options);
     },
-    getPixX: function(count,i){
-        var w = this.getSize().w - this._options.margin[1]-this._options.margin[3];
-        return this._options.margin[3] + i*w/(count-1);
+    setFrame: function(){
+        var size = this.getSize();
+        var frame    = {};
+        frame.x      = this._options.margin[3];
+        frame.y      = this._options.margin[0];
+        frame.width  = size.width - this._options.margin[1] - this._options.margin[3];
+        frame.height = size.height - this._options.margin[0] - this._options.margin[2];
+        this._frame  = frame;
     },
-    getPixY: function(y){
-        var h = this.getSize().h - this._options.margin[0]-this._options.margin[2];
-        var max = this.getMax();
-        var min = this.getMin();
-        return h * (1-(y-min)/(max-min)) + this._options.margin[0];
-    },
-    getY: function(data,i){
-        if(this._options.getY){
-            return this._options.getY(data, i);
-        }
-        return data[i]['y'];
-    },
-    getX: function(data,i){
-        if(this._options.getX){
-            return this._options.getX(data, i);
-        }
-        return data[i]['x'];
+    getFrame: function(){
+        return this._frame;
     },
     setMax: function(){
         var max;
@@ -211,6 +209,28 @@ Chart.prototype = {
     getMin: function(){
         return this._min;
     },
+    getPixX: function(count,i){
+        var w = this.getSize().width - this._options.margin[1]-this._options.margin[3];
+        return this._options.margin[3] + i*w/(count-1);
+    },
+    getPixY: function(y){
+        var h = this.getSize().height - this._options.margin[0]-this._options.margin[2];
+        var max = this.getMax();
+        var min = this.getMin();
+        return h * (1-(y-min)/(max-min)) + this._options.margin[0];
+    },
+    getY: function(data,i){
+        if(this._options.getY){
+            return this._options.getY(data, i);
+        }
+        return data[i]['y'];
+    },
+    getX: function(data,i){
+        if(this._options.getX){
+            return this._options.getX(data, i);
+        }
+        return data[i]['x'];
+    },
     getTickY: function(i){
         var max = this.getMax();
         var min = this.getMin();
@@ -247,7 +267,13 @@ Chart.prototype = {
             return tickVal;
         }
     },
-    getDots:function(position,type){
+    getTipText: function(data, i){
+        if(this._options.getTipText){
+            return this._options.getTipText(data,i);
+        }else
+            return data[i]['y']+"";
+    },
+    getDots:function(type, pos1, pos2){
         var els = [];
 
         //vertical
@@ -257,14 +283,25 @@ Chart.prototype = {
                 for(var j=0;j<dots.length;j++){
                     var el = dots[j];
                     var box = el.getBBox();
-                    if(position >= box.x && position <= box.x2){
+                    if(pos1 >= box.x && pos1 <= box.x2){
                         els.push(el);
                     }
                 }
             }
-        }else{
+        }else if(type == 1){
         //horizontal
 
+        }else if(type == 3){
+            for(var i=0;i<this.elements.dots.length;i++){
+                var dots = this.elements.dots[i];
+                for(var j=0;j<dots.length;j++){
+                    var el = dots[j];
+                    var box = el.getBBox();
+                    if(pos1 >= box.x && pos1 <= box.x2 && pos2 >= box.y && pos2 <= box.y2){
+                        els.push(el);
+                    }
+                }
+            }
         }
         return els;
     }
@@ -288,12 +325,12 @@ LineRender.prototype = {
         setTimeout(function(){
             self.drawBackground();
             self.drawChart();   
-            self.drawTips();  
         },self._options.timing);
          
     },
     init: function(){
-
+        this.tips  = [];
+        this.tipTexts = [];
     },
     buildAxes:function(){
         
@@ -335,9 +372,13 @@ LineRender.prototype = {
                 _dot.attr("data",self._context.getY(data,j));
                 _dot.attr("cx",x);
                 _dot.attr("cy",minY);
-
+                _dot.data("index",j);
+                _dot.data("data",data);
                 _dot.mouseover(function(){
+
                     this.animate(self._options.dotHoverAttr, self._options.dotTiming);
+                    var box = this.getBBox();
+                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [self._context.getTipText(this.data("data"), this.data("index"))]);
                 }).mouseout(function(){
                     this.animate(self._options.dotAttr, self._options.dotTiming);
                 });
@@ -354,28 +395,34 @@ LineRender.prototype = {
         var self  = this;
         var minY  = this._context.getPixY(this._context.getMin());
         var left  = self._options.margin[3];
-        var right = self._context.getSize().w - self._options.margin[1];
+        var right = self._context.getSize().width - self._options.margin[1];
         
-        var bg = this._gc.rect(0, 0, this._context.getSize().w, this._context.getSize().h);
+        var bg = this._gc.rect(0, 0, this._context.getSize().width, this._context.getSize().height);
         bg.toBack();
         bg.attr(self._options.bgAttr);
 
         if(this._options.showTracker){
             var tracker = this._gc.path("");
             tracker.attr(self._options.trackerAttr);
-            var els = [];
-            bg.mousemove(function(e){
-                var offsetX = e.offsetX?e.offsetX:e.layerX;
+        }
 
-                for(var i=0;i<els.length;i++){
-                    for(var j = 0; j < els[i].events.length; j++) {
-                        if (els[i].events[j].name == 'mouseout') {
-                            els[i].events[j].f.apply(els[i]);
-                        }
+        var els = [];
+        bg.mousemove(function(e){
+            var offsetX = e.offsetX?e.offsetX:e.layerX;
+            var offsetY = e.offsetY?e.offsetY:e.layerY;
+
+            for(var i=0;i<els.length;i++){
+                for(var j = 0; j < els[i].events.length; j++) {
+                    if (els[i].events[j].name == 'mouseout') {
+                        els[i].events[j].f.apply(els[i]);
                     }
                 }
-
-                els = self._context.getDots(offsetX, 0);
+            }
+            
+            if(self._options.showTracker){
+                els = self._context.getDots(0, offsetX);
+                self.clearTips();
+                //draw tips
                 for(var i=0;i<els.length;i++){
                     for(var j = 0; j < els[i].events.length; j++) {
                         if (els[i].events[j].name == 'mouseover') {
@@ -383,12 +430,18 @@ LineRender.prototype = {
                         }
                     }
                 }
-              
+
+                //draw tracker
                 if(offsetX >= left && offsetX <= right){
-                    tracker.attr("path","M"+offsetX+","+self._options.margin[0]+"L"+offsetX+","+minY); 
+                    if(self._options.showTracker){
+                        tracker.attr("path","M"+offsetX+","+self._options.margin[0]+"L"+offsetX+","+minY); 
+                    }
                 }
-            });
-        }
+            }else{
+                self.clearTips();
+            }
+        });
+
     },
     drawAxes: function(){
         var minY = this._context.getPixY(this._context.getMin());
@@ -398,7 +451,7 @@ LineRender.prototype = {
          */
         var path = this._gc.path("");
         path.attr(self._options.tickYAttr);
-        path.attr("path","M"+this._options.margin[3]+","+this._options.margin[0]+"L"+this._options.margin[3]+","+(this._context.getSize().h -this._options.margin[2]));
+        path.attr("path","M"+this._options.margin[3]+","+this._options.margin[0]+"L"+this._options.margin[3]+","+(this._context.getSize().height -this._options.margin[2]));
        
         for(var i=0;i<this._options.tickSize+1;i++){
             var y = this._context.getPixY(this._context.getTickY(i));
@@ -418,8 +471,8 @@ LineRender.prototype = {
             if(this._options.showGrid){
                var path = this._gc.path("");
                path.attr(self._options.gridYAttr);
-               path.attr("path","M"+this._options.margin[3]+","+minY+"L"+(this._context.getSize().w-this._options.margin[1])+","+minY);
-               path.animate({"path":"M"+this._options.margin[3]+","+y+"L"+(this._context.getSize().w-this._options.margin[1])+","+y}, self._options.timing);
+               path.attr("path","M"+this._options.margin[3]+","+minY+"L"+(this._context.getSize().width-this._options.margin[1])+","+minY);
+               path.animate({"path":"M"+this._options.margin[3]+","+y+"L"+(this._context.getSize().width-this._options.margin[1])+","+y}, self._options.timing);
                //path.attr({"path":"M"+this._options.margin[3]+","+y+"L"+(this._context.getSize().w-this._options.margin[1])+","+y});
             }
         }
@@ -430,7 +483,7 @@ LineRender.prototype = {
 
         path = this._gc.path("");
         path.attr(self._options.tickXAttr);
-        path.attr("path","M"+this._options.margin[3]+","+(this._context.getSize().h - this._options.margin[2])+"L"+(this._context.getSize().w - this._options.margin[1])+","+(this._context.getSize().h - this._options.margin[2]));
+        path.attr("path","M"+this._options.margin[3]+","+(this._context.getSize().height - this._options.margin[2])+"L"+(this._context.getSize().width - this._options.margin[1])+","+(this._context.getSize().height - this._options.margin[2]));
         
         for(var i=0;i<this._data.categories.length;i++){
             var x = this._context.getPixX(this._data.categories.length,i);
@@ -458,18 +511,14 @@ LineRender.prototype = {
     },
     drawChart: function(){
         var self = this;
-        
         var minY = self._context.getPixY(self._context.getMin());
-        var w = this._context.getSize().w;
-        var h = this._context.getSize().h;
-
+        var w = this._context.getSize().width;
+        var h = this._context.getSize().height;
 
         for(var i=0;i<self._data.series.length;i++){
             var path = self._context.elements.series[i];
-            dot = self._context.elements.dots[i];
-
+            var dot = self._context.elements.dots[i];
             var data = self._data.series[i];
-            
             var pathString;
             for(var j=0;j<data.length;j++){
                 var y =  self._context.getPixY(self._context.getY(data,j));
@@ -491,12 +540,75 @@ LineRender.prototype = {
                 _dot.animate({"cy":y}, self._options.timing, "<");
             }   
         }
-
-        this.drawTips(100,100,200,50,10,10);
     },
-    drawTips: function (x, y, w, h, wv, hv, color) {
-        var text = this._gc.text(100,100,"<a href='/'>test</a>");
-        
+    drawTips: function (x, y, els) {
+        var angle  = 5, indent = 8;
+        var padding = this._options.tipAttr.padding;
+
+        x = Math.round(x) + indent;
+        y = Math.round(y);
+
+        var h = 2 * padding;
+        var w = h;
+        var maxWidth = 0; 
+
+        var path = this._gc.path("");
+        path.hide();
+        path.attr(this._options.tipAttr);
+        this.tips.push(path);
+
+        var texts = [];
+
+        for(var i=0;i<els.length;i++){
+            var text = this._gc.text(0, y, els[i]);
+            text.hide();
+            text.attr(this._options.tipAttr.textAttr);
+            this.tipTexts.push(text);
+            texts.push(text);
+            h += text.getBBox().height;
+            if(text.getBBox().width > maxWidth){
+                maxWidth = text.getBBox().width;
+            }
+        }
+
+        w += maxWidth;
+        var hh = Math.round(h/2);
+        if(hh < angle){
+            angle = hh;
+        }
+    
+        var xa;
+        var tx;
+        var frame = this._context.getFrame();
+
+        //check if tip's frame is out of bounds
+        if(x+angle+w > frame.x+frame.width){
+            w  = -w;
+            x -= 2*indent;
+            xa = x-angle;
+            tx = xa + w + padding;
+        }else{
+            xa = x+angle;
+            tx = xa+padding;
+        }
+
+        for(var i=0;i<texts.length;i++){
+            texts[i].attr("x",tx);
+            texts[i].show();
+        }
+        var pathString = "M"+x+","+y+"L"+xa+","+(y-angle)+"L"+xa+","+(y-hh)+"L"+(xa+w)+","+(y-hh)+"L"+(xa+w)+","+(y+hh)+"L"+xa+","+(y+hh)+"L"+xa+","+(y+angle)+"L"+x+","+y;
+        path.attr("path",pathString);
+        path.show();
+    },
+    clearTips: function(){
+        for(var i=0;i<this.tips.length;i++){
+            this.tips[i].remove();
+        }
+        for(var i=0;i<this.tipTexts.length;i++){
+            this.tipTexts[i].remove();
+        }
+        this.tips.splice(0);
+        this.tipTexts.splice(0);
     }
 }
 
