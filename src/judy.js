@@ -172,6 +172,9 @@ Chart.prototype = {
         this.setMax();
         this.setMin();
     },
+    draw: function(){
+        this._render.run(this);
+    },
     setSize: function (size) {
         this._size = size;
     },
@@ -195,9 +198,6 @@ Chart.prototype = {
     },
     setData: function (data) {
         this._data = data;
-    },
-    draw: function(){
-        this._render.draw(this, this._data, this._options);
     },
     setFrame: function(){
         var size = this.getSize();
@@ -350,36 +350,40 @@ Chart.prototype = {
 }
 
 /*
- * Line Chart 
+ * Render Prototype
  */
-function LineRender(){}
-LineRender.prototype = {
-    draw: function(context,data, options){
-        var self = this;
-        self._context = context;
-        self._data = data;
-        self._options = options;
-        self._gc = self._context.getGC();
-        self.init();
-        self.buildAxes();
-        self.drawBackground();
-        self.buildChart();
-        self.drawAxes();
-        setTimeout(function(){
-            self.drawChart();   
-        },self._options.timing);
-         
+function Render(){}
+Render.prototype = {
+    run: function(context){
+        this._context = context;
+        this._data    = this._context._data;
+        this._options = this._context._options;
+        this._gc      = this._context.getGC();
+        this.init();
+        this.build();
+        this.draw();
     },
     init: function(){
         this.tips  = [];
         this.tipTexts = [];
     },
+    build: function(){
+        this.buildAxes();
+        this.buildPlots();
+    },
+    draw: function(){
+        var self = this;
+        self.drawAxes();
+        self.drawBackground();
+        setTimeout(function(){
+            self.drawPlots();   
+        },self._options.timing);
+    },
     buildAxes:function(){
         
     },
-    buildChart:function(){
+    buildPlots:function(){
         var self = this;
-
         var minY = self._context.getPixY(self._context.getMin());
 
         for(var i=0;i<self._data.series.length;i++){
@@ -388,7 +392,6 @@ LineRender.prototype = {
             var path = self._gc.path("");
             path.attr(self._options.lineAttr);
             path.attr("stroke", self._options.colors[i]);
-            //save series
             self._context.elements.series.push(path);
             
             var pathString;
@@ -426,7 +429,6 @@ LineRender.prototype = {
                 dot.push(_dot);
             }
             path.attr("path", pathString);
-            //save dots
             self._context.elements.dots.push(dot);
         }
     },
@@ -547,7 +549,7 @@ LineRender.prototype = {
             }
         }
     },
-    drawChart: function(){
+    drawPlots: function(){
         var self = this;
         var minY = self._context.getPixY(self._context.getMin());
         var w = this._context.getSize().width;
@@ -643,3 +645,11 @@ LineRender.prototype = {
         this.tipTexts.splice(0);
     }
 }
+/*
+ * Line Chart 
+ */
+function LineRender(){}
+LineRender.prototype = {
+
+}
+extend(LineRender.prototype, Render.prototype);
