@@ -1,63 +1,3 @@
-function extend(){
-    var options, name, src, copy, copyIsArray, clone,
-        target = arguments[0] || {},
-        i = 1,
-        length = arguments.length,
-        deep = false;
-    if ( typeof target === "boolean" ) {
-        deep = target;
-        target = arguments[1] || {};
-        i = 2;
-    }
-    if ( typeof target !== "object" && !this.isFunction(target)) {
-        target = {};
-    }
-    if ( length === i ) {
-        target = this;
-        --i;
-    }
-    for ( ; i < length; i++ ) {
-        if ( (options = arguments[ i ]) != null ) {
-            for ( name in options ) {
-                src = target[ name ];
-                copy = options[ name ];
-                if ( target === copy ) {
-                    continue;
-                }
-                if ( deep && copy && ( this.isPlainObject(copy) || (copyIsArray = this.isArray(copy)) ) ) {
-                    if ( copyIsArray ) {
-                        copyIsArray = false;
-                        clone = src && this.isArray(src) ? src : [];
-                    } else {
-                        clone = src && this.isPlainObject(src) ? src : {};
-                    }
-                    target[ name ] = this.extend( deep, clone, copy );
-                } else if ( copy !== undefined ) {
-                    target[ name ] = copy;
-                }
-            }
-        }
-    }
-    return target;
-}
-function decimal(val, position) {
-    var f = parseFloat(val);
-    if (isNaN(f)) {
-        return false;
-    }
-    var f = Math.round(f*100)/100;
-    var s = f.toString();
-    var pos = s.indexOf('.');
-    if (pos < 0) {
-        pos = s.length;
-        s += '.';
-    }
-    while (s.length <= pos + position) {
-        s += '0';
-    }
-    return s;
-}
-
 var _options = {
     width:600,
     height:400,
@@ -149,9 +89,9 @@ var _options = {
 
 function Chart(container, type, data, options){
     extend(_options, options);
-    this._options = _options
+    this.options = _options;
 
-    var gc = Raphael(container,_options.width, _options.height);
+    var gc = Raphael(container, this.options.width, this.options.height);
     this.setGC(gc);
 
     this.setType(type);
@@ -167,55 +107,55 @@ Chart.prototype = {
             dots:[]     
         }
 
-        this.setSize({width: _options.width, height: _options.height});
+        this.setSize({width: this.options.width, height: this.options.height});
         this.setFrame();
         this.setMax();
         this.setMin();
     },
     draw: function(){
-        this._render.run(this);
+        this.render.run(this);
     },
     setSize: function (size) {
-        this._size = size;
+        this.size = size;
     },
     getSize: function () {
-        return this._size;
+        return this.size;
     },
     setGC: function (gc) {
-        this._gc = gc;
+        this.gc = gc;
     },
     getGC: function () {
-        return this._gc;
+        return this.gc;
     },
     setType: function (type) {
-        this._type = type;
+        this.type = type;
         eval("var Render = " + type + "Render");
         var render =  new Render();
         this.setRender(render);
     },
     setRender: function (render) {
-        this._render = render;
+        this.render = render;
     },
     setData: function (data) {
-        this._data = data;
+        this.data = data;
     },
     setFrame: function(){
         var size = this.getSize();
         var frame    = {};
-        frame.x      = this._options.margin[3];
-        frame.y      = this._options.margin[0];
-        frame.width  = size.width - this._options.margin[1] - this._options.margin[3];
-        frame.height = size.height - this._options.margin[0] - this._options.margin[2];
-        this._frame  = frame;
+        frame.x      = this.options.margin[3];
+        frame.y      = this.options.margin[0];
+        frame.width  = size.width - this.options.margin[1] - this.options.margin[3];
+        frame.height = size.height - this.options.margin[0] - this.options.margin[2];
+        this.frame  = frame;
     },
     getFrame: function(){
-        return this._frame;
+        return this.frame;
     },
     setMax: function(){
         var max;
-        for(var i=0;i<this._data.series.length;i++){
-            for(var j=0;j<this._data.series[i].length;j++){
-                var y = this.getY(this._data.series[i],j);
+        for(var i=0;i<this.data.series.length;i++){
+            for(var j=0;j<this.data.series[i].length;j++){
+                var y = this.getY(this.data.series[i],j);
                 if(i==0 && j==0){
                     max = y;
                 }else{
@@ -224,17 +164,17 @@ Chart.prototype = {
                 }
             }
         }
-        this._max = max;
+        this.max = max;
         return max;
     },
     getMax: function(){
-        return this._max;
+        return this.max;
     },
     setMin: function(){
         var min;
-        for(var i=0;i<this._data.series.length;i++){
-            for(var j=0;j<this._data.series[i].length;j++){
-                var y = this.getY(this._data.series[i],j);
+        for(var i=0;i<this.data.series.length;i++){
+            for(var j=0;j<this.data.series[i].length;j++){
+                var y = this.getY(this.data.series[i],j);
 
                 if(i==0 && j==0){
                     min = y;
@@ -245,73 +185,73 @@ Chart.prototype = {
 
             }
         }
-        this._min = min;
+        this.min = min;
         return min;
     },
     getMin: function(){
-        return this._min;
+        return this.min;
     },
     getPixX: function(count,i){
-        var w = this.getSize().width - this._options.margin[1]-this._options.margin[3];
-        return this._options.margin[3] + i*w/(count-1);
+        var w = this.getSize().width - this.options.margin[1]-this.options.margin[3];
+        return this.options.margin[3] + i*w/(count-1);
     },
     getPixY: function(y){
-        var h = this.getSize().height - this._options.margin[0]-this._options.margin[2];
+        var h = this.getSize().height - this.options.margin[0]-this.options.margin[2];
         var max = this.getMax();
         var min = this.getMin();
-        return h * (1-(y-min)/(max-min)) + this._options.margin[0];
+        return h * (1-(y-min)/(max-min)) + this.options.margin[0];
     },
     getY: function(data,i){
-        if(this._options.getY){
-            return this._options.getY(data, i);
+        if(this.options.getY){
+            return this.options.getY(data, i);
         }
         return data[i]['y'];
     },
     getX: function(data,i){
-        if(this._options.getX){
-            return this._options.getX(data, i);
+        if(this.options.getX){
+            return this.options.getX(data, i);
         }
         return data[i]['x'];
     },
     getTickY: function(i){
         var max = this.getMax();
         var min = this.getMin();
-        var interval = (max - min)/this._options.tickSize;
-        var tickVal = decimal(min + interval*i, this._options.tickFixed);
+        var interval = (max - min)/this.options.tickSize;
+        var tickVal = decimal(min + interval*i, this.options.tickFixed);
 
-        if(this._options.getTickY){
-            return this._options.getTickY(tickVal,i);
+        if(this.options.getTickY){
+            return this.options.getTickY(tickVal,i);
         }else{
             return tickVal;
         }
     },
     formatTickY: function(i){
         var tickVal = this.getTickY(i);
-        if(this._options.formatTickY){
-            return this._options.formatTickY(tickVal,i);
+        if(this.options.formatTickY){
+            return this.options.formatTickY(tickVal,i);
         }else{
             return tickVal;
         }
     },
     getTickX: function(i){
-        var tickVal = this._data.categories[i];
-        if(this._options.getTickX){
-            return this._options.getTickX(tickVal,i);
+        var tickVal = this.data.categories[i];
+        if(this.options.getTickX){
+            return this.options.getTickX(tickVal,i);
         }else{
             return tickVal;
         }
     },
     formatTickX: function(i){
         var tickVal = this.getTickX(i);
-        if(this._options.formatTickX){
-            return this._options.formatTickX(tickVal,i);
+        if(this.options.formatTickX){
+            return this.options.formatTickX(tickVal,i);
         }else{
             return tickVal;
         }
     },
     getTipText: function(data, i){
-        if(this._options.getTipText){
-            return this._options.getTipText(data,i);
+        if(this.options.getTipText){
+            return this.options.getTipText(data,i);
         }else
             return data[i]['y']+"";
     },
@@ -355,10 +295,10 @@ Chart.prototype = {
 function Render(){}
 Render.prototype = {
     run: function(context){
-        this._context = context;
-        this._data    = this._context._data;
-        this._options = this._context._options;
-        this._gc      = this._context.getGC();
+        this.context = context;
+        this.data    = this.context.data;
+        this.options = this.context.options;
+        this.gc      = this.context.getGC();
         this.init();
         this.build();
         this.draw();
@@ -368,60 +308,64 @@ Render.prototype = {
         this.tipTexts = [];
     },
     build: function(){
+        this.buildData();
         this.buildAxes();
         this.buildPlots();
+    },
+    buildData: function(){
+
     },
     buildAxes:function(){
         
     },
     buildPlots:function(){
         var self = this;
-        var minY = self._context.getPixY(self._context.getMin());
+        var minY = self.context.getPixY(self.context.getMin());
 
-        for(var i=0;i<self._data.series.length;i++){
-            var data = self._data.series[i];
+        for(var i=0;i<self.data.series.length;i++){
+            var data = self.data.series[i];
 
-            var path = self._gc.path("");
-            path.attr(self._options.lineAttr);
-            path.attr("stroke", self._options.colors[i]);
-            self._context.elements.series.push(path);
+            var path = self.gc.path("");
+            path.attr(self.options.lineAttr);
+            path.attr("stroke", self.options.colors[i]);
+            self.context.elements.series.push(path);
             
             var pathString;
             var dot = new Array();
             for(var j = 0;j<data.length;j++){
-                var y =  self._context.getPixY(self._context.getY(data,j));
-                var x = self._context.getPixX(data.length,j);
+                var y =  self.context.getPixY(self.context.getY(data,j));
+                var x = self.context.getPixX(data.length,j);
 
                 if(j==0){
                     pathString  = "M"+x+","+minY;
                 }else{
-                    var y1 = self._context.getPixY(self._context.getY(data,j-1));
-                    var x1 = self._context.getPixX(data.length,j-1);
+                    var y1 = self.context.getPixY(self.context.getY(data,j-1));
+                    var x1 = self.context.getPixX(data.length,j-1);
                     var ix = (x - x1)/1.4;
 
                     pathString  += "S"+(x1+ix)+","+minY+" "+x+","+minY;
                 }
                 
-                var _dot = self._gc.circle(0, 0);
-                _dot.attr(self._options.dotAttr);
-                _dot.attr("stroke", self._options.bgAttr.fill);
-                _dot.attr("fill", self._options.colors[i]);
-                _dot.attr("data",self._context.getY(data,j));
+                var _dot = self.gc.circle(0, 0);
+                _dot.attr(self.options.dotAttr);
+                _dot.attr("stroke", self.options.bgAttr.fill);
+                _dot.attr("fill", self.options.colors[i]);
+                _dot.attr("data",self.context.getY(data,j));
                 _dot.attr("cx",x);
                 _dot.attr("cy",minY);
                 _dot.data("index",j);
                 _dot.data("data",data);
                 _dot.mouseover(function(){
-                    this.animate(self._options.dotHoverAttr, self._options.dotTiming);
+                    this.animate(self.options.dotHoverAttr, self.options.dotTiming);
                     var box = this.getBBox();
-                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [self._context.getTipText(this.data("data"), this.data("index"))]);
+                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [self.context.getTipText(this.data("data"), this.data("index"))]);
                 }).mouseout(function(){
-                    this.animate(self._options.dotAttr, self._options.dotTiming);
+                    this.animate(self.options.dotAttr, self.options.dotTiming);
                 });
                 dot.push(_dot);
             }
             path.attr("path", pathString);
-            self._context.elements.dots.push(dot);
+            self.context.elements.dots.push(dot);
         }
     },
     draw: function(){
@@ -430,39 +374,40 @@ Render.prototype = {
         self.drawBackground();
         setTimeout(function(){
             self.drawPlots();   
-        },self._options.timing);
+        },self.options.timing);
     },
     drawAxes: function(){
-        var minY = this._context.getPixY(this._context.getMin());
-
+        var self = this;
+        var minY = self.context.getPixY(this.context.getMin());
+        
         /*
          * YAxis
          */
-        var path = this._gc.path("");
-        path.attr(self._options.tickYAttr);
-        path.attr("path","M"+this._options.margin[3]+","+this._options.margin[0]+"L"+this._options.margin[3]+","+(this._context.getSize().height -this._options.margin[2]));
+        var path = self.gc.path("");
+        path.attr(self.options.tickYAttr);
+        path.attr("path","M"+this.options.margin[3]+","+this.options.margin[0]+"L"+this.options.margin[3]+","+(this.context.getSize().height -this.options.margin[2]));
        
-        for(var i=0;i<this._options.tickSize+1;i++){
-            var y = this._context.getPixY(this._context.getTickY(i));
-            var text = this._gc.text(10,minY,this._context.formatTickY(i));
-            text.attr(this._options.tickYAttr);
-            text.attr("width", this._options.margin[3]);
+        for(var i=0;i<this.options.tickSize+1;i++){
+            var y = this.context.getPixY(this.context.getTickY(i));
+            var text = this.gc.text(10,minY,this.context.formatTickY(i));
+            text.attr(this.options.tickYAttr);
+            text.attr("width", this.options.margin[3]);
             text.attr("text-anchor", "start");
-            text.animate({"y":y}, self._options.timing);
+            text.animate({"y":y}, self.options.timing);
             //text.attr({"y":y});
 
-            var path = this._gc.path("");
-            path.attr(self._options.tickYAttr);
-            path.attr("path","M"+this._options.margin[3]+","+minY+"L"+(this._options.margin[3]-this._options.tickLength)+","+minY);
-            path.animate({"path":"M"+this._options.margin[3]+","+y+"L"+(this._options.margin[3]-this._options.tickLength)+","+y}, self._options.timing);
-            //path.attr({"path":"M"+this._options.margin[3]+","+y+"L"+(this._options.margin[3]-this._options.tickLength)+","+y});
+            var path = this.gc.path("");
+            path.attr(self.options.tickYAttr);
+            path.attr("path","M"+this.options.margin[3]+","+minY+"L"+(this.options.margin[3]-this.options.tickLength)+","+minY);
+            path.animate({"path":"M"+this.options.margin[3]+","+y+"L"+(this.options.margin[3]-this.options.tickLength)+","+y}, self.options.timing);
+            //path.attr({"path":"M"+this.options.margin[3]+","+y+"L"+(this.options.margin[3]-this.options.tickLength)+","+y});
             
-            if(this._options.showGrid){
-               var path = this._gc.path("");
-               path.attr(self._options.gridYAttr);
-               path.attr("path","M"+this._options.margin[3]+","+minY+"L"+(this._context.getSize().width-this._options.margin[1])+","+minY);
-               path.animate({"path":"M"+this._options.margin[3]+","+y+"L"+(this._context.getSize().width-this._options.margin[1])+","+y}, self._options.timing);
-               //path.attr({"path":"M"+this._options.margin[3]+","+y+"L"+(this._context.getSize().w-this._options.margin[1])+","+y});
+            if(this.options.showGrid){
+               var path = this.gc.path("");
+               path.attr(self.options.gridYAttr);
+               path.attr("path","M"+this.options.margin[3]+","+minY+"L"+(this.context.getSize().width-this.options.margin[1])+","+minY);
+               path.animate({"path":"M"+this.options.margin[3]+","+y+"L"+(this.context.getSize().width-this.options.margin[1])+","+y}, self.options.timing);
+               //path.attr({"path":"M"+this.options.margin[3]+","+y+"L"+(this.context.getSize().w-this.options.margin[1])+","+y});
             }
         }
 
@@ -470,47 +415,47 @@ Render.prototype = {
          * XAxis
          */
 
-        path = this._gc.path("");
-        path.attr(self._options.tickXAttr);
-        path.attr("path","M"+this._options.margin[3]+","+(this._context.getSize().height - this._options.margin[2])+"L"+(this._context.getSize().width - this._options.margin[1])+","+(this._context.getSize().height - this._options.margin[2]));
+        path = this.gc.path("");
+        path.attr(self.options.tickXAttr);
+        path.attr("path","M"+this.options.margin[3]+","+(this.context.getSize().height - this.options.margin[2])+"L"+(this.context.getSize().width - this.options.margin[1])+","+(this.context.getSize().height - this.options.margin[2]));
         
-        for(var i=0;i<this._data.categories.length;i++){
-            var x = this._context.getPixX(this._data.categories.length,i);
+        for(var i=0;i<this.data.categories.length;i++){
+            var x = this.context.getPixX(this.data.categories.length,i);
 
-            var text = this._gc.text(this._options.margin[3],minY+3*this._options.tickLength,this._context.getTickX(i));
-            text.attr(this._options.tickXAttr);
+            var text = this.gc.text(this.options.margin[3],minY+3*this.options.tickLength,this.context.getTickX(i));
+            text.attr(this.options.tickXAttr);
             text.attr("text-anchor", "middle");
-            text.animate({"x":x}, self._options.timing);
+            text.animate({"x":x}, self.options.timing);
             //text.attr({"x":x});
 
-            var path = this._gc.path("");
-            path.attr(self._options.tickXAttr);
-            path.attr("path","M"+this._options.margin[3]+","+minY+"L"+this._options.margin[3]+","+(minY+this._options.tickLength));
-            path.animate({"path":"M"+x+","+minY+"L"+x+","+(minY+this._options.tickLength)}, self._options.timing);
-            //path.attr({"path":"M"+x+","+minY+"L"+x+","+(minY+this._options.tickLength)});
+            var path = this.gc.path("");
+            path.attr(self.options.tickXAttr);
+            path.attr("path","M"+this.options.margin[3]+","+minY+"L"+this.options.margin[3]+","+(minY+this.options.tickLength));
+            path.animate({"path":"M"+x+","+minY+"L"+x+","+(minY+this.options.tickLength)}, self.options.timing);
+            //path.attr({"path":"M"+x+","+minY+"L"+x+","+(minY+this.options.tickLength)});
             
-            if(this._options.showGrid){
-                var path = this._gc.path("");
-                path.attr(self._options.gridXAttr);
-                path.attr("path","M"+this._options.margin[3]+","+this._options.margin[0]+"L"+this._options.margin[3]+","+minY);
-                path.animate({"path":"M"+x+","+this._options.margin[0]+"L"+x+","+minY}, self._options.timing);  
-                //path.attr({"path":"M"+x+","+this._options.margin[0]+"L"+x+","+minY});  
+            if(this.options.showGrid){
+                var path = this.gc.path("");
+                path.attr(self.options.gridXAttr);
+                path.attr("path","M"+this.options.margin[3]+","+this.options.margin[0]+"L"+this.options.margin[3]+","+minY);
+                path.animate({"path":"M"+x+","+this.options.margin[0]+"L"+x+","+minY}, self.options.timing);  
+                //path.attr({"path":"M"+x+","+this.options.margin[0]+"L"+x+","+minY});  
             }
         }
     },
     drawBackground: function(){
         var self  = this;
-        var minY  = this._context.getPixY(this._context.getMin());
-        var left  = self._options.margin[3];
-        var right = self._context.getSize().width - self._options.margin[1];
+        var minY  = this.context.getPixY(this.context.getMin());
+        var left  = self.options.margin[3];
+        var right = self.context.getSize().width - self.options.margin[1];
         
-        var bg = this._gc.rect(0, 0, this._context.getSize().width, this._context.getSize().height);
+        var bg = this.gc.rect(0, 0, this.context.getSize().width, this.context.getSize().height);
         bg.toBack();
-        bg.attr(self._options.bgAttr);
+        bg.attr(self.options.bgAttr);
 
-        if(this._options.showTracker){
-            var tracker = this._gc.path("");
-            tracker.attr(self._options.trackerAttr);
+        if(this.options.showTracker){
+            var tracker = this.gc.path("");
+            tracker.attr(self.options.trackerAttr);
         }
 
         var els = [];
@@ -526,8 +471,8 @@ Render.prototype = {
                 }
             }
 
-            if(self._options.showTracker){
-                els = self._context.getDots(0, offsetX);
+            if(self.options.showTracker){
+                els = self.context.getDots(0, offsetX);
                 self.clearTips();
                 //draw tips
                 for(var i=0;i<els.length;i++){
@@ -539,8 +484,8 @@ Render.prototype = {
                 }
                 //draw tracker
                 if(offsetX >= left && offsetX <= right){
-                    if(self._options.showTracker){
-                        //tracker.attr("path","M"+offsetX+","+self._options.margin[0]+"L"+offsetX+","+minY); 
+                    if(self.options.showTracker){
+                        //tracker.attr("path","M"+offsetX+","+self.options.margin[0]+"L"+offsetX+","+minY); 
                     }
                 }
             }else{
@@ -551,54 +496,54 @@ Render.prototype = {
     },
     drawPlots: function(){
         var self = this;
-        var minY = self._context.getPixY(self._context.getMin());
-        var w = this._context.getSize().width;
-        var h = this._context.getSize().height;
+        var minY = self.context.getPixY(self.context.getMin());
+        var w = this.context.getSize().width;
+        var h = this.context.getSize().height;
 
-        for(var i=0;i<self._data.series.length;i++){
-            var path = self._context.elements.series[i];
-            var dot = self._context.elements.dots[i];
-            var data = self._data.series[i];
+        for(var i=0;i<self.data.series.length;i++){
+            var path = self.context.elements.series[i];
+            var dot = self.context.elements.dots[i];
+            var data = self.data.series[i];
             var pathString;
             for(var j=0;j<data.length;j++){
-                var y =  self._context.getPixY(self._context.getY(data,j));
-                var x = self._context.getPixX(data.length,j);
+                var y =  self.context.getPixY(self.context.getY(data,j));
+                var x = self.context.getPixX(data.length,j);
                 if(j==0){
                     pathString = "M"+x+","+y;
                 }else{
-                    var y1 = self._context.getPixY(self._context.getY(data,j-1));
-                    var x1 = self._context.getPixX(data.length,j-1);
+                    var y1 = self.context.getPixY(self.context.getY(data,j-1));
+                    var x1 = self.context.getPixX(data.length,j-1);
                     var ix = (x - x1)/1.4;
                     pathString += "S"+(x1+ix)+","+y+" "+x+","+y;   
                 }
             }
-            path.animate({path:pathString}, self._options.timing,"<");
+            path.animate({path:pathString}, self.options.timing,"<");
 
             for(var j=0;j<dot.length;j++){
                 var _dot  = dot[j];
-                var y = self._context.getPixY(self._context.getY(data,j));
-                _dot.animate({"cy":y}, self._options.timing, "<");
+                var y = self.context.getPixY(self.context.getY(data,j));
+                _dot.animate({"cy":y}, self.options.timing, "<");
             }   
         }
     },
     drawTips: function (x, y, els) {
-        var angle  = 5, indent = 8, padding = this._options.tipAttr.padding;
+        var angle  = 5, indent = 8, padding = this.options.tipAttr.padding;
         var h = 2 * padding, w = h, maxWidth = 0; 
 
         x = Math.round(x) + indent;
         y = Math.round(y);
 
-        var path = this._gc.path("");
+        var path = this.gc.path("");
         path.hide();
-        path.attr(this._options.tipAttr);
+        path.attr(this.options.tipAttr);
         this.tips.push(path);
 
         var texts = [];
 
         for(var i=0;i<els.length;i++){
-            var text = this._gc.text(0, y, els[i]);
+            var text = this.gc.text(0, y, els[i]);
             text.hide();
-            text.attr(this._options.tipAttr.textAttr);
+            text.attr(this.options.tipAttr.textAttr);
             this.tipTexts.push(text);
             texts.push(text);
             h += text.getBBox().height;
@@ -613,7 +558,7 @@ Render.prototype = {
             angle = hh;
         }
     
-        var xa, tx, frame = this._context.getFrame();
+        var xa, tx, frame = this.context.getFrame();
 
         //check if tip's frame is out of bounds
         if(x+angle+w > frame.x+frame.width){
@@ -645,6 +590,8 @@ Render.prototype = {
         this.tipTexts.splice(0);
     }
 }
+
+
 /*
  * Line Chart 
  */
@@ -653,3 +600,65 @@ LineRender.prototype = {
 
 }
 extend(LineRender.prototype, Render.prototype);
+
+
+/*
+ * utils
+ */
+function extend(){
+    var options, name, src, copy, copyIsArray, clone,
+        target = arguments[0] || {},
+        i = 1,
+        length = arguments.length,
+        deep = false;
+    if ( typeof target === "boolean" ) {
+        deep = target;
+        target = arguments[1] || {};
+        i = 2;
+    }
+    if ( typeof target !== "object" && !this.isFunction(target)) {
+        target = {};
+    }
+    if ( length === i ) {
+        target = this;
+        --i;
+    }
+    for ( ; i < length; i++ ) {
+        if ( (options = arguments[ i ]) != null ) {
+            for ( name in options ) {
+                src = target[ name ];
+                copy = options[ name ];
+                if ( target === copy ) {continue;}
+                if ( deep && copy && ( this.isPlainObject(copy) || (copyIsArray = this.isArray(copy)) ) ) {
+                    if ( copyIsArray ) {
+                        copyIsArray = false;
+                        clone = src && this.isArray(src) ? src : [];
+                    } else {
+                        clone = src && this.isPlainObject(src) ? src : {};
+                    }
+                    target[ name ] = this.extend( deep, clone, copy );
+                } else if ( copy !== undefined ) {
+                    target[ name ] = copy;
+                }
+            }
+        }
+    }
+    return target;
+}
+function decimal(val, position) {
+    var f = parseFloat(val);
+    if (isNaN(f)) {
+        return false;
+    }
+    var f = Math.round(f*100)/100;
+    var s = f.toString();
+    var pos = s.indexOf('.');
+    if (pos < 0) {
+        pos = s.length;
+        s += '.';
+    }
+    while (s.length <= pos + position) {
+        s += '0';
+    }
+    return s;
+}
