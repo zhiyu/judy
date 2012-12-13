@@ -371,14 +371,6 @@ Render.prototype = {
         this.buildAxes();
         this.buildPlots();
     },
-    draw: function(){
-        var self = this;
-        self.drawAxes();
-        self.drawBackground();
-        setTimeout(function(){
-            self.drawPlots();   
-        },self._options.timing);
-    },
     buildAxes:function(){
         
     },
@@ -432,56 +424,13 @@ Render.prototype = {
             self._context.elements.dots.push(dot);
         }
     },
-    drawBackground: function(){
-        var self  = this;
-        var minY  = this._context.getPixY(this._context.getMin());
-        var left  = self._options.margin[3];
-        var right = self._context.getSize().width - self._options.margin[1];
-        
-        var bg = this._gc.rect(0, 0, this._context.getSize().width, this._context.getSize().height);
-        bg.toBack();
-        bg.attr(self._options.bgAttr);
-
-        if(this._options.showTracker){
-            var tracker = this._gc.path("");
-            tracker.attr(self._options.trackerAttr);
-        }
-
-        var els = [];
-        bg.mousemove(function(e){
-            var offsetX = e.offsetX?e.offsetX:e.layerX;
-            var offsetY = e.offsetY?e.offsetY:e.layerY;
-
-            for(var i=0;i<els.length;i++){
-                for(var j = 0; j < els[i].events.length; j++) {
-                    if (els[i].events[j].name == 'mouseout') {
-                        els[i].events[j].f.apply(els[i]);
-                    }
-                }
-            }
-
-            if(self._options.showTracker){
-                els = self._context.getDots(0, offsetX);
-                self.clearTips();
-                //draw tips
-                for(var i=0;i<els.length;i++){
-                    for(var j = 0; j < els[i].events.length; j++) {
-                        if (els[i].events[j].name == 'mouseover') {
-                            els[i].events[j].f.apply(els[i]);
-                        }
-                    }
-                }
-                //draw tracker
-                if(offsetX >= left && offsetX <= right){
-                    if(self._options.showTracker){
-                        //tracker.attr("path","M"+offsetX+","+self._options.margin[0]+"L"+offsetX+","+minY); 
-                    }
-                }
-            }else{
-                self.clearTips();
-            }
-        });
-
+    draw: function(){
+        var self = this;
+        self.drawAxes();
+        self.drawBackground();
+        setTimeout(function(){
+            self.drawPlots();   
+        },self._options.timing);
     },
     drawAxes: function(){
         var minY = this._context.getPixY(this._context.getMin());
@@ -548,6 +497,57 @@ Render.prototype = {
                 //path.attr({"path":"M"+x+","+this._options.margin[0]+"L"+x+","+minY});  
             }
         }
+    },
+    drawBackground: function(){
+        var self  = this;
+        var minY  = this._context.getPixY(this._context.getMin());
+        var left  = self._options.margin[3];
+        var right = self._context.getSize().width - self._options.margin[1];
+        
+        var bg = this._gc.rect(0, 0, this._context.getSize().width, this._context.getSize().height);
+        bg.toBack();
+        bg.attr(self._options.bgAttr);
+
+        if(this._options.showTracker){
+            var tracker = this._gc.path("");
+            tracker.attr(self._options.trackerAttr);
+        }
+
+        var els = [];
+        bg.mousemove(function(e){
+            var offsetX = e.offsetX?e.offsetX:e.layerX;
+            var offsetY = e.offsetY?e.offsetY:e.layerY;
+
+            for(var i=0;i<els.length;i++){
+                for(var j = 0; j < els[i].events.length; j++) {
+                    if (els[i].events[j].name == 'mouseout') {
+                        els[i].events[j].f.apply(els[i]);
+                    }
+                }
+            }
+
+            if(self._options.showTracker){
+                els = self._context.getDots(0, offsetX);
+                self.clearTips();
+                //draw tips
+                for(var i=0;i<els.length;i++){
+                    for(var j = 0; j < els[i].events.length; j++) {
+                        if (els[i].events[j].name == 'mouseover') {
+                            els[i].events[j].f.apply(els[i]);
+                        }
+                    }
+                }
+                //draw tracker
+                if(offsetX >= left && offsetX <= right){
+                    if(self._options.showTracker){
+                        //tracker.attr("path","M"+offsetX+","+self._options.margin[0]+"L"+offsetX+","+minY); 
+                    }
+                }
+            }else{
+                self.clearTips();
+            }
+        });
+
     },
     drawPlots: function(){
         var self = this;
