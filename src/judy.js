@@ -547,29 +547,31 @@ Render.prototype = {
         var w = this.context.getSize().width;
         var h = this.context.getSize().height;
 
-        for(var i=0;i<self.data.series.length;i++){
+        for(var i=0;i<self.tdata.series.length;i++){
             var path = self.elements.series[i];
             var dot = self.elements.dots[i];
-            var data = self.data.series[i];
+            var data = self.tdata.series[i];
             var pathString;
             for(var j=0;j<data.length;j++){
-                var y =  self.context.getPixY(self.context.getY(data,j));
-                var x = self.context.getPixX(data.length,j);
+                var x = data[j][0], y = data[j][1];
                 if(j==0){
                     pathString = "M"+x+","+y;
                 }else{
-                    var y1 = self.context.getPixY(self.context.getY(data,j-1));
-                    var x1 = self.context.getPixX(data.length,j-1);
+                    var x1 = data[j-1][0], y1 = data[j-1][1];
                     var ix = (x - x1)/1.4;
                     pathString += "S"+(x1+ix)+","+y+" "+x+","+y;   
                 }
             }
             path.animate({path:pathString}, self.options.timing,"<");
+        }
 
-            for(var j=0;j<dot.length;j++){
-                var _dot  = dot[j];
-                var y = self.context.getPixY(self.context.getY(data,j));
-                _dot.animate({"cy":y}, self.options.timing, "<");
+        for(var i=0;i<self.tdata.series.length;i++){
+            var dot = self.elements.dots[i];
+            var data = self.tdata.series[i];
+            for(var j=0;j<data.length;j++){
+                var d = dot[j];
+                var y = data[j][1];
+                d.animate({"cy":y}, self.options.timing, "<");
             }   
         }
     },
