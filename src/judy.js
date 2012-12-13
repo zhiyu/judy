@@ -61,7 +61,7 @@ var _options = {
     },
     getTipText:null,
     lineAttr:{
-      "stroke-width":4,
+      "stroke-width":3,
       "opacity":0.9       
     },
     lineHoverAttr:{
@@ -70,18 +70,18 @@ var _options = {
     },
     dotAttr:{
       "stroke-width":2,
-      "r":4,
+      "r":3,
       "opacity":1
     },
     dotHoverAttr:{
       "stroke-width":2,
-      "r":6,
+      "r":4,
       "opacity":1
     },
     colors:[
-      ["#bfc91c"],
-      ["#2c91e4"],
-      ["#e42c2c"]
+      ["#075697"],
+      ["#970707"],
+      ["#079741"]
     ],
     timing:500,
     dotTiming:100
@@ -576,7 +576,7 @@ Render.prototype = {
         }
     },
     drawTips: function (x, y, els) {
-        var angle  = 5, indent = 10, padding = this.options.tipAttr.padding;
+        var angle  = 5, indent = 6, padding = this.options.tipAttr.padding;
         var h = 2 * padding, w = h, maxWidth = 0; 
 
         x = Math.round(x) + indent;
