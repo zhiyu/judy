@@ -191,9 +191,20 @@ Chart.prototype = {
     getMin: function(){
         return this.min;
     },
-    getPixX: function(count,i){
-        var w = this.getSize().width - this.options.margin[1]-this.options.margin[3];
-        return this.options.margin[3] + i*w/(count-1);
+    getPixX: function(count, i, position){
+        if(position==undefined){
+            position = 0;
+        }
+
+        var frame = this.getFrame();
+        var w  = frame.width;
+        var iw = w/(count-1); 
+        var px = frame.x + i*iw;
+        if(position == 1){
+            iw = w/(count); 
+            px = frame.x + i*iw + iw/2;
+        }
+        return px;
     },
     getPixY: function(y){
         var h = this.getSize().height - this.options.margin[0]-this.options.margin[2];
@@ -729,52 +740,54 @@ function AreaRender(){
 /*
  * Column Chart 
  */
-function ColumnRender(){}
-ColumnRender.prototype = {
-    buildPlotsData: function(){
-        var self = this;
-        this.tdata.series = [];
-        for(var i=0;i<self.data.series.length;i++){
-            this.tdata.series[i] = [];
-            var data = self.data.series[i];
-            for(var j = 0;j<data.length;j++){
-                var x = self.context.getPixX(data.length,j);
-                var y =  self.context.getPixY(self.context.getY(data,j));
-                this.tdata.series[i][j] = [x, y];
-            }
-        }
-    },
-    drawPlots: function(){
-        var self = this;
-        var min = self.context.getPixY(self.context.getMin());
-        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
-        
-        var w = this.context.getSize().width;
-        var h = this.context.getSize().height;
+function ColumnRender(){
+    extend(ColumnRender.prototype, Render.prototype);
+    extend(ColumnRender.prototype, {
+            buildPlotsData: function(){
+                var self = this;
+                this.tdata.series = [];
+                for(var i=0;i<self.data.series.length;i++){
+                    this.tdata.series[i] = [];
+                    var data = self.data.series[i];
+                    for(var j = 0;j<data.length;j++){
+                        var x = self.context.getPixX(data.length, j, 1);
+                        var y =  self.context.getPixY(self.context.getY(data,j));
+                        this.tdata.series[i][j] = [x, y];
+                    }
+                }
+            },
+            drawPlots: function(){
+                var self = this;
+                var min = self.context.getPixY(self.context.getMin());
+                var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
+                
+                var w = this.context.getSize().width;
+                var h = this.context.getSize().height;
 
-        for(var i=0;i<self.tdata.series.length;i++){
-            var path = self.elements.series[i];
-            var dot = self.elements.dots[i];
-            var data = self.tdata.series[i];
-            var pathStart, pathEnd;
-            for(var j=0;j<data.length;j++){
-                var x = data[j][0], y = data[j][1];
-                if(j==0){
-                    pathStart  = "M"+x+","+threshold;
-                    pathEnd = "M"+x+","+y;
-                }else{
-                    var x1 = data[j-1][0], y1 = data[j-1][1];
-                    var ix = (x - x1)/1.4;
-                    pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
-                    pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
+                for(var i=0;i<self.tdata.series.length;i++){
+                    var path = self.elements.series[i];
+                    var dot = self.elements.dots[i];
+                    var data = self.tdata.series[i];
+                    var pathStart, pathEnd;
+                    for(var j=0;j<data.length;j++){
+                        var x = data[j][0], y = data[j][1];
+                        if(j==0){
+                            pathStart  = "M"+x+","+threshold;
+                            pathEnd = "M"+x+","+y;
+                        }else{
+                            var x1 = data[j-1][0], y1 = data[j-1][1];
+                            var ix = (x - x1)/1.4;
+                            pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
+                            pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
+                        }
+                    }
+                    path.attr("path", pathStart);
+                    path.animate({path:pathEnd}, self.options.timing,"<");
                 }
             }
-            path.attr("path", pathStart);
-            path.animate({path:pathEnd}, self.options.timing,"<");
         }
-    }
+    );
 }
-extend(ColumnRender.prototype, Render.prototype);
 
 /*
  * utils
