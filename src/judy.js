@@ -1,3 +1,45 @@
+function extend(){
+    var options, name, src, copy, copyIsArray, clone,
+        target = arguments[0] || {},
+        i = 1,
+        length = arguments.length,
+        deep = false;
+    if ( typeof target === "boolean" ) {
+        deep = target;
+        target = arguments[1] || {};
+        i = 2;
+    }
+    if ( typeof target !== "object" && !this.isFunction(target)) {
+        target = {};
+    }
+    if ( length === i ) {
+        target = this;
+        --i;
+    }
+    for ( ; i < length; i++ ) {
+        if ( (options = arguments[ i ]) != null ) {
+            for ( name in options ) {
+                src = target[ name ];
+                copy = options[ name ];
+                if ( target === copy ) {
+                    continue;
+                }
+                if ( deep && copy && ( this.isPlainObject(copy) || (copyIsArray = this.isArray(copy)) ) ) {
+                    if ( copyIsArray ) {
+                        copyIsArray = false;
+                        clone = src && this.isArray(src) ? src : [];
+                    } else {
+                        clone = src && this.isPlainObject(src) ? src : {};
+                    }
+                    target[ name ] = this.extend( deep, clone, copy );
+                } else if ( copy !== undefined ) {
+                    target[ name ] = copy;
+                }
+            }
+        }
+    }
+    return target;
+}
 function decimal(val, position) {
     var f = parseFloat(val);
     if (isNaN(f)) {
@@ -16,7 +58,6 @@ function decimal(val, position) {
     return s;
 }
 
-
 var _options = {
     width:600,
     height:400,
@@ -25,6 +66,7 @@ var _options = {
        fill:"#ffffff",
        "stroke-width":0
     },
+    threshold:0,
     formatX: null,
     formatY: null,
     getX: null,
@@ -106,7 +148,7 @@ var _options = {
 };
 
 function Chart(container, type, data, options){
-    utils.extend(_options, options);
+    extend(_options, options);
     this._options = _options
 
     var gc = Raphael(container,_options.width, _options.height);
@@ -430,7 +472,7 @@ LineRender.prototype = {
                 //draw tracker
                 if(offsetX >= left && offsetX <= right){
                     if(self._options.showTracker){
-                        tracker.attr("path","M"+offsetX+","+self._options.margin[0]+"L"+offsetX+","+minY); 
+                        //tracker.attr("path","M"+offsetX+","+self._options.margin[0]+"L"+offsetX+","+minY); 
                     }
                 }
             }else{
@@ -538,15 +580,11 @@ LineRender.prototype = {
         }
     },
     drawTips: function (x, y, els) {
-        var angle  = 5, indent = 8;
-        var padding = this._options.tipAttr.padding;
+        var angle  = 5, indent = 8, padding = this._options.tipAttr.padding;
+        var h = 2 * padding, w = h, maxWidth = 0; 
 
         x = Math.round(x) + indent;
         y = Math.round(y);
-
-        var h = 2 * padding;
-        var w = h;
-        var maxWidth = 0; 
 
         var path = this._gc.path("");
         path.hide();
@@ -573,9 +611,7 @@ LineRender.prototype = {
             angle = hh;
         }
     
-        var xa;
-        var tx;
-        var frame = this._context.getFrame();
+        var xa, tx, frame = this._context.getFrame();
 
         //check if tip's frame is out of bounds
         if(x+angle+w > frame.x+frame.width){
@@ -605,53 +641,5 @@ LineRender.prototype = {
         }
         this.tips.splice(0);
         this.tipTexts.splice(0);
-    }
-}
-
-/*
- * Utils 
- */
-var utils = {
-    extend : function(){
-        var options, name, src, copy, copyIsArray, clone,
-            target = arguments[0] || {},
-            i = 1,
-            length = arguments.length,
-            deep = false;
-        if ( typeof target === "boolean" ) {
-            deep = target;
-            target = arguments[1] || {};
-            i = 2;
-        }
-        if ( typeof target !== "object" && !this.isFunction(target)) {
-            target = {};
-        }
-        if ( length === i ) {
-            target = this;
-            --i;
-        }
-        for ( ; i < length; i++ ) {
-            if ( (options = arguments[ i ]) != null ) {
-                for ( name in options ) {
-                    src = target[ name ];
-                    copy = options[ name ];
-                    if ( target === copy ) {
-                        continue;
-                    }
-                    if ( deep && copy && ( this.isPlainObject(copy) || (copyIsArray = this.isArray(copy)) ) ) {
-                        if ( copyIsArray ) {
-                            copyIsArray = false;
-                            clone = src && this.isArray(src) ? src : [];
-                        } else {
-                            clone = src && this.isPlainObject(src) ? src : {};
-                        }
-                        target[ name ] = this.extend( deep, clone, copy );
-                    } else if ( copy !== undefined ) {
-                        target[ name ] = copy;
-                    }
-                }
-            }
-        }
-        return target;
     }
 }
