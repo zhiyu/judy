@@ -19,3 +19,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 Contact
 -------------------------
 any question about judy, please feel free to contact zhengzhiyu@yeah.net
+
+Demos
+-------------------------
+
+*Line Charts
+*Area Charts
+*Column Charts
