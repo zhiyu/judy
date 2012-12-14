@@ -1,67 +1,176 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Judy by nodengine</title>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>judy</title>
+    <meta charset="utf-8" />    
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel='stylesheet' type="text/css" href='css/style.css'>
+    <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../src/raphael-min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../src/judy.js" type="text/javascript" charset="utf-8"></script>
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1 class="header">Judy</h1>
-        <p class="header">a javascript visualization library.</p>
+    <div class="main">
+      <div class="category">
+        <h1>Judy</h1>
+        <div class="subcategory">
+          <h2>About</h2>
+          <div>
+            <p>
+             <a href="http://github.com/nodengine/judy">judy</a> is a javascript charting library for web application development.
+            </p>
+          </div>
+        </div>
+        <div class="subcategory">
+          <h2>License</h2>
+          <div>
+              <p>Copyright&nbsp;&copy;2012&nbsp;&nbsp;zhiyu zheng &nbsp;&nbsp; all rights reserved.</p>  
+              <br/>          
+              <p>
+              Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+              </p>
+              <br/>
+              <p>
+              The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+              <br/>
+              Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+              </p>
+              <br/>
+              <p>
+              THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+              </p>
+          </div>
+        </div>
+        <div class="subcategory">
+          <h2>Contact</h2>
+          <div>any question about judy, please feel free to contact <a href="mailto:zhengzhiyu@yeah.net">zhengzhiyu@yeah.net</a></div>
+        </div>
+      </div>  
+      <div class="category">
+        <h1>Line Charts</h1>
+        <div class="subcategory">
+          <div id='chart' style="height:400px;" /></div>
 
-        <ul>
-          <li class="download"><a class="buttons" href="https://github.com/nodengine/judy/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/nodengine/judy/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/nodengine/judy">View On GitHub</a></li>
-        </ul>
-
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/nodengine">nodengine</a></p>
-
-
-      </header>
-      <section>
-        <h3>Welcome to GitHub Pages.</h3>
-
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
-
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
-
-<h3>Designer Templates</h3>
-
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-      </section>
-      <footer>
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
-      </footer>
-    </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+        </div>
+        <h1>Area Charts</h1>
+        <div class="subcategory">
+          <div id='chart1' style="height:400px;"/></div>
+        </div>
+        <h1>Column Charts</h1>
+        <div class="subcategory">
+          <div id='chart2'  style="height:400px;"/></div>
+          <div id='chart201' style="height:400px;"/></div>
+          <div id='chart202' style="height:400px;"/></div>
+        </div>
+      </div >
+      </div>
   </body>
 </html>
+
+<script type="text/javascript">
+    $(function(){
+         $(".category",".left").click(function(){
+            $("ul",".left .parent").each(function(){
+              if($(this).css("display")!="none"){
+                $(this).slideUp(300);
+              }
+            });
+            $(".category a",".left").removeClass("selected");
+            $($("a",this)[0]).addClass("selected");
+            if($('ul',this).css("display")=="none")
+              $('ul',this).slideDown(300);
+            else
+              $('ul',this).slideUp(300);
+
+          });
+   
+          $(".category ul a",".left").click(function(evt){
+              evt.stopPropagation();
+              //return false;
+          });
+    });
+
+    var chart = new Chart(document.getElementById("chart"),"Line",{series:[
+                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
+                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4}],
+                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}, {x:9.8,y:10}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9}]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        }
+      } 
+    );
+    chart.draw();
+
+    var chart1 = new Chart(document.getElementById("chart1"),"Area",{series:[
+                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
+                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4}],
+                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}, {x:9.8,y:10}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9}]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        }
+      } 
+    );
+    chart1.draw();
+
+    var chart2 = new Chart(document.getElementById("chart2"),"Column",{series:[
+                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
+                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}],
+                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        },
+        animationType:"bounce",
+        lineAttr:{
+          "stroke-width":1,
+          "opacity":0.9       
+        }
+      }
+    );
+    chart2.draw();
+
+    var chart201 = new Chart(document.getElementById("chart201"),"Column",{series:[
+                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
+                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}],
+                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        },
+        animationType:"bounce",
+        threshold:10,
+        lineAttr:{
+          "stroke-width":1,
+          "opacity":0.9       
+        }
+      }
+    );
+    chart201.draw();
+
+    var chart202 = new Chart(document.getElementById("chart202"),"Column",{series:[
+                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
+                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}],
+                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        },
+        stacked:true,
+        animationType:"bounce",
+        lineAttr:{
+          "stroke-width":1,
+          "opacity":0.9       
+        }
+      }
+    );
+    chart202.draw();
+
+</script>
