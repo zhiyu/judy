@@ -1,6 +1,3 @@
-<script src="./src/raphael-min.js" type="text/javascript" charset="utf-8"></script>
-<script src="./src/judy.js" type="text/javascript" charset="utf-8"></script>
-    
 About
 -------------------------
 [judy](http://github.com/nodengine/judy) is a javascript charting library for web application development.
@@ -24,15 +21,5 @@ Demos
 -------------------------
 
 * Line Charts
-  <div id='chart' style="height:400px;" /></div>
 * Area Charts
 * Column Charts
-
-
-
-
-
-
-<script type="text/javascript">
-alert("hello");
-</script>
