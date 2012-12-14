@@ -174,10 +174,7 @@ Chart.prototype = {
         return max;
     },
     getMax: function(){
-        if(this.options.getMax){
-            return this.options.getMax();
-        }
-        return this.max;
+        return this.options.getMax != undefined?this.options.getMax():this.max;
     },
     setMin: function(){
         var min;
@@ -198,10 +195,7 @@ Chart.prototype = {
         return min;
     },
     getMin: function(){
-        if(this.options.getMin){
-            return this.options.getMin();
-        }
-        return this.min;
+        return this.options.getMin != undefined?this.options.getMin():this.min;
     },
     getPixX: function(count, i, position){
         if(position==undefined){
@@ -225,16 +219,10 @@ Chart.prototype = {
         return h * (1-(y-min)/(max-min)) + this.options.margin[0];
     },
     getY: function(data,i){
-        if(this.options.getY){
-            return this.options.getY(data, i);
-        }
-        return data[i]['y'];
+        return this.options.getY != undefined?this.options.getY(data, i):data[i]['y'];
     },
     getX: function(data,i){
-        if(this.options.getX){
-            return this.options.getX(data, i);
-        }
-        return data[i]['x'];
+        return this.options.getX != undefined?this.options.getX(data, i):data[i]['x'];
     },
     getTickY: function(i){
         var max = this.getMax();
@@ -242,41 +230,22 @@ Chart.prototype = {
         var interval = (max - min)/this.options.tickSize;
         var tickVal = decimal(min + interval*i, this.options.tickFixed);
 
-        if(this.options.getTickY){
-            return this.options.getTickY(tickVal,i);
-        }else{
-            return tickVal;
-        }
+        return this.options.getTickY != undefined?this.options.getTickY(tickVal,i):tickVal;
     },
     formatTickY: function(i){
         var tickVal = this.getTickY(i);
-        if(this.options.formatTickY){
-            return this.options.formatTickY(tickVal,i);
-        }else{
-            return tickVal;
-        }
+        return this.options.formatTickY != undefined?this.options.formatTickY(tickVal,i):tickVal;
     },
     getTickX: function(i){
         var tickVal = this.data.categories[i];
-        if(this.options.getTickX){
-            return this.options.getTickX(tickVal,i);
-        }else{
-            return tickVal;
-        }
+        return this.options.getTickX != undefined?this.options.getTickX(tickVal,i):tickVal;
     },
     formatTickX: function(i){
         var tickVal = this.getTickX(i);
-        if(this.options.formatTickX){
-            return this.options.formatTickX(tickVal,i);
-        }else{
-            return tickVal;
-        }
+        return this.options.formatTickX != undefined?this.options.formatTickX(tickVal,i):tickVal;
     },
     getTipText: function(data, i){
-        if(this.options.getTipText){
-            return this.options.getTipText(data,i);
-        }else
-            return data[i]['y']+"";
+        return this.options.getTipText != undefined?this.options.getTipText(data,i):data[i]['y']+"";
     },
     getThreshold: function(){
         return (this.options.threshold!=null)?this.getPixY(this.options.threshold):this.getPixY(this.getMin());
