@@ -305,6 +305,15 @@ Render.prototype = {
         this.createPlots();
         this.createDots();
     },
+    draw: function(){
+        var self = this;
+        self.drawAxes();
+        self.drawBackground();
+        setTimeout(function(){
+            self.drawPlots();   
+            self.drawDots();   
+        },self.options.timing);
+    },
     buildPlotsData: function(){
         var self = this;
         this.tdata.series = [];
@@ -312,7 +321,7 @@ Render.prototype = {
             this.tdata.series[i] = [];
             var data = self.data.series[i];
             for(var j = 0;j<data.length;j++){
-                var x = self.context.getPixX(data.length,j);
+                var x = self.context.getPixX(data.length, j, this.align);
                 var y =  self.context.getPixY(self.context.getY(data,j));
                 this.tdata.series[i][j] = [x, y];
             }
@@ -373,21 +382,21 @@ Render.prototype = {
         xaxis.attr("path","M"+this.options.margin[3]+","+(this.context.getSize().height - this.options.margin[2])+"L"+(this.context.getSize().width - this.options.margin[1])+","+(this.context.getSize().height - this.options.margin[2]));
         self.elements.axes[1][0] = yaxis;
         
+        var x = this.options.margin[3];
         for(var i=0;i<this.data.categories.length;i++){
             self.elements.axes[1][1][i] = [];
-            var x = this.context.getPixX(this.data.categories.length,i);
 
-            var text = this.gc.text(this.options.margin[3],min+3*this.options.tickLength,this.context.getTickX(i));
+            var text = this.gc.text(x, min+3*this.options.tickLength,this.context.getTickX(i));
             text.attr(this.options.tickXAttr);
             text.attr("text-anchor", "middle");
             
             var tick = this.gc.path("");
             tick.attr(self.options.tickXAttr);
-            tick.attr("path","M"+this.options.margin[3]+","+min+"L"+this.options.margin[3]+","+(min+this.options.tickLength));
+            tick.attr("path","M"+x+","+min+"L"+this.options.margin[3]+","+(min+this.options.tickLength));
             
             var grid = this.gc.path("");
             grid.attr(self.options.gridXAttr);
-            grid.attr("path","M"+this.options.margin[3]+","+this.options.margin[0]+"L"+this.options.margin[3]+","+min);
+            grid.attr("path","M"+x+","+this.options.margin[0]+"L"+this.options.margin[3]+","+min);
             grid.hide();
 
             //save elements
@@ -418,19 +427,18 @@ Render.prototype = {
                 d.attr("fill", self.options.colors[i]);
                 d.data("index",j);
                 d.data("data", self.data.series[i]);
+                d.mouseover(function(){
+                    this.animate(self.options.dotHoverAttr, self.options.dotTiming);
+                    var box = this.getBBox();
+                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [self.context.getTipText(this.data("data"), this.data("index"))]);
+                }).mouseout(function(){
+                    this.animate(self.options.dotAttr, self.options.dotTiming);
+                    self.clearTips();
+                });
                 dot.push(d);
             }
             self.elements.dots.push(dot);
         }
-    },
-    draw: function(){
-        var self = this;
-        self.drawAxes();
-        self.drawBackground();
-        setTimeout(function(){
-            self.drawPlots();   
-            self.drawDots();   
-        },self.options.timing);
     },
     drawAxes: function(){
         var self = this;
@@ -461,7 +469,7 @@ Render.prototype = {
          * XAxis
          */
         for(var i=0;i<this.data.categories.length;i++){
-            var x = this.context.getPixX(this.data.categories.length,i);
+            var x = this.context.getPixX(this.data.categories.length, i, this.align);
 
             var text = this.elements.axes[1][1][i][0];
             text.animate({"x":x}, self.options.timing);
@@ -573,14 +581,6 @@ Render.prototype = {
                 var d = dot[j];
                 d.attr("cx",x);
                 d.attr("cy",threshold);
-                d.mouseover(function(){
-                    this.animate(self.options.dotHoverAttr, self.options.dotTiming);
-                    var box = this.getBBox();
-                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [self.context.getTipText(this.data("data"), this.data("index"))]);
-                }).mouseout(function(){
-                    this.animate(self.options.dotAttr, self.options.dotTiming);
-                });
-
                 var y = data[j][1];
                 d.animate({"cy":y}, self.options.timing, "<");
             }   
@@ -694,47 +694,45 @@ function LineRender(){
  */
 function AreaRender(){
     extend(AreaRender.prototype, Render.prototype);
-    extend(AreaRender.prototype, {
-            drawPlots: function(){
-                var self = this;
-                var min = self.context.getPixY(self.context.getMin());
-                var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
-                
-                var w = this.context.getSize().width;
-                var h = this.context.getSize().height;
 
-                for(var i=0;i<self.tdata.series.length;i++){
-                    var path = self.elements.series[i];
-                    var dot = self.elements.dots[i];
-                    var data = self.tdata.series[i];
-                    var pathStart, pathEnd;
+    this.drawPlots = function(){
+        var self = this;
+        var min = self.context.getPixY(self.context.getMin());
+        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
+        
+        var w = this.context.getSize().width;
+        var h = this.context.getSize().height;
 
-                    var x0 = data[0][0], y0 = data[0][1];
-                    for(var j=0;j<data.length;j++){
-                        var x = data[j][0], y = data[j][1];
-                        if(j==0){
-                            pathStart  = "M"+x+","+threshold+"L"+x+","+threshold;
-                            pathEnd    = "M"+x+","+threshold+"L"+x+","+y;
-                        }else{
-                            var x1 = data[j-1][0], y1 = data[j-1][1];
-                            var ix = (x - x1)/1.4;
-                            pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
-                            pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
+        for(var i=0;i<self.tdata.series.length;i++){
+            var path = self.elements.series[i];
+            var data = self.tdata.series[i];
+            var pathStart, pathEnd;
 
-                            if(j == data.length - 1){
-                                pathStart  += "L"+x+","+threshold+"Z"+x+","+threshold;
-                                pathEnd    += "L"+x+","+threshold+"Z"+x0+","+threshold;
-                            }
-                        }
+            var x0 = data[0][0], y0 = data[0][1];
+            for(var j=0;j<data.length;j++){
+                var x = data[j][0], y = data[j][1];
+                if(j==0){
+                    pathStart  = "M"+x+","+threshold+"L"+x+","+threshold;
+                    pathEnd    = "M"+x+","+threshold+"L"+x+","+y;
+                }else{
+                    var x1 = data[j-1][0], y1 = data[j-1][1];
+                    var ix = (x - x1)/1.4;
+                    pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
+                    pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
+
+                    if(j == data.length - 1){
+                        pathStart  += "L"+x+","+threshold+"Z"+x+","+threshold;
+                        pathEnd    += "L"+x+","+threshold+"Z"+x0+","+threshold;
                     }
-                    path.attr("fill", path.attr("stroke"));
-                    path.attr("fill-opacity", path.attr("opacity")/2);
-                    path.attr("path", pathStart);
-                    path.animate({path:pathEnd}, self.options.timing,"<");
                 }
             }
+            path.attr("fill", path.attr("stroke"));
+            path.attr("fill-opacity", path.attr("opacity")/2);
+            path.attr("path", pathStart);
+            path.animate({path:pathEnd}, self.options.timing,"<");
         }
-    );
+    }
+    
 }
 
 /*
@@ -742,51 +740,81 @@ function AreaRender(){
  */
 function ColumnRender(){
     extend(ColumnRender.prototype, Render.prototype);
-    extend(ColumnRender.prototype, {
-            buildPlotsData: function(){
-                var self = this;
-                this.tdata.series = [];
-                for(var i=0;i<self.data.series.length;i++){
-                    this.tdata.series[i] = [];
-                    var data = self.data.series[i];
-                    for(var j = 0;j<data.length;j++){
-                        var x = self.context.getPixX(data.length, j, 1);
-                        var y =  self.context.getPixY(self.context.getY(data,j));
-                        this.tdata.series[i][j] = [x, y];
-                    }
-                }
-            },
-            drawPlots: function(){
-                var self = this;
-                var min = self.context.getPixY(self.context.getMin());
-                var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
-                
-                var w = this.context.getSize().width;
-                var h = this.context.getSize().height;
-
-                for(var i=0;i<self.tdata.series.length;i++){
-                    var path = self.elements.series[i];
-                    var dot = self.elements.dots[i];
-                    var data = self.tdata.series[i];
-                    var pathStart, pathEnd;
-                    for(var j=0;j<data.length;j++){
-                        var x = data[j][0], y = data[j][1];
-                        if(j==0){
-                            pathStart  = "M"+x+","+threshold;
-                            pathEnd = "M"+x+","+y;
-                        }else{
-                            var x1 = data[j-1][0], y1 = data[j-1][1];
-                            var ix = (x - x1)/1.4;
-                            pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
-                            pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
-                        }
-                    }
-                    path.attr("path", pathStart);
-                    path.animate({path:pathEnd}, self.options.timing,"<");
-                }
+    this.align = 1;
+    
+    this.createPlots = function(){
+        var self = this;
+        for(var i=0;i<self.tdata.series.length;i++){
+            self.elements.series[i] = [];
+            var data = self.tdata.series[i];
+            for(var j=0;j<data.length;j++){
+                var path = self.gc.path("");
+                path.attr(self.options.lineAttr);
+                path.attr("stroke", self.options.colors[i]);
+                self.elements.series[i].push(path);
             }
         }
-    );
+    }
+    this.drawPlots = function(){
+        var self = this;
+        var min = self.context.getPixY(self.context.getMin());
+        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
+        var w  = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
+        var padding = w/5;
+        var iw = (w-2*padding)/self.tdata.series.length;
+
+        for(var i=0;i<self.tdata.series.length;i++){
+            var data = self.tdata.series[i];
+            for(var j=0;j<data.length;j++){
+               
+                var path = self.elements.series[i][j];
+                path.attr("fill", path.attr("stroke"));
+                path.attr("fill-opacity", path.attr("opacity")/2);
+                path.data("i",i);
+                path.data("j",j);
+                path.mouseover(function(){
+                    var dot = self.elements.dots[this.data("i")][this.data("j")];
+                    for(var e in dot.events){
+                        if (dot.events[e].name == 'mouseover') {
+                            dot.events[e].f.apply(dot);
+                        }
+                    }
+                }).mouseout(function(){
+                    var dot = self.elements.dots[this.data("i")][this.data("j")];
+                    for(var e in dot.events){
+                        if (dot.events[e].name == 'mouseout') {
+                            dot.events[e].f.apply(dot);
+                        }
+                    }
+                });
+                var ix = data[j][0] - w/2 + padding + iw*i, y = data[j][1];
+                var pathStart = "M"+ix+","+threshold+"L"+ix+","+threshold+"L"+(ix+iw)+","+threshold+"L"+(ix+iw)+","+threshold+"Z";
+                var pathEnd   = "M"+ix+","+threshold+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+threshold+"Z";
+                path.attr("path", pathStart);
+                path.animate({path:pathEnd}, self.options.timing,"<");
+            }
+        }
+    }
+    this.drawDots = function(){
+        var self = this;
+        var min = self.context.getPixY(self.context.getMin());
+        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
+        var w  = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
+        var padding = w/5;
+        var iw = (w-2*padding)/self.tdata.series.length;
+
+        for(var i=0;i<self.tdata.series.length;i++){
+            var data = self.tdata.series[i];
+            for(var j=0;j<data.length;j++){
+                var ix = data[j][0] - w/2 + padding + iw*i + iw/2, y = data[j][1];
+                var dot = self.elements.dots[i][j];
+                dot.attr("cx",ix);
+                dot.attr("cy",threshold);
+                var y = data[j][1];
+                dot.animate({"cy":y}, self.options.timing, "<");
+            }   
+        }
+    }
 }
 
 /*
