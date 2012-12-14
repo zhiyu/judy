@@ -159,19 +159,39 @@ Chart.prototype = {
     },
     setMax: function(){
         var max;
-        for(var i=0;i<this.data.series.length;i++){
-            for(var j=0;j<this.data.series[i].length;j++){
-                var y = this.getY(this.data.series[i],j);
-                if(i==0 && j==0){
-                    max = y;
+        if(this.options.stacked){
+            for(var j=0;j<this.data.series[0].length;j++){
+                var _max;
+
+                for(var i=0;i<this.data.series.length;i++){
+                    var y = this.getY(this.data.series[i], j);
+                    if(i==0){
+                        _max = y;
+                    }else{
+                        _max += y;
+                    }
+                }
+                if(j==0){
+                    max = _max;
                 }else{
-                    if(y > max)
+                    if(_max > max)
+                        max = _max;
+                }
+            }
+        }else{
+            for(var i=0;i<this.data.series.length;i++){
+                for(var j=0;j<this.data.series[i].length;j++){
+                    var y = this.getY(this.data.series[i],j);
+                    if(i==0 && j==0){
                         max = y;
+                    }else{
+                        if(y > max)
+                            max = y;
+                    }
                 }
             }
         }
         this.max = max;
-        return max;
     },
     getMax: function(){
         return this.options.getMax != undefined?this.options.getMax():this.max;
@@ -525,18 +545,19 @@ Render.prototype = {
     drawPlots: function(){
         var self = this;
         for(var i=0;i<self.tdata.series.length;i++){
-            var serie = self.elements.series[i];
             var data = self.tdata.series[i];
+            var serie = self.elements.series[i];
             for(var j=0;j<data.length;j++){
                 var el = serie;
                 if(serie.length){
                    el = serie[j];
                 }
-                self.drawPlot(el, data, i, j);
+                self.drawPlot(el, self.tdata.series, i, j);
             }
         }
     },
     drawPlot: function(el, data, i, j){
+        data = data[i];
         var self = this;
         var threshold = self.context.getThreshold();
 
@@ -568,14 +589,14 @@ Render.prototype = {
             var data = self.tdata.series[i];
             for(var j=0;j<data.length;j++){
                  var d = dot[j];
-                 self.drawDot(d, data, i, j);
+                 self.drawDot(d, self.tdata.series, i, j);
             }   
         }
     },
     drawDot:function(el, data, i, j){
+        data = data[i];
         var self = this;
         var threshold = self.context.getThreshold();
-
         var x = data[j][0], y = data[j][1];
         el.attr("cx",x);
         el.attr("cy",threshold);
@@ -691,6 +712,7 @@ function AreaRender(){
     extend(AreaRender.prototype, Render.prototype);
 
     this.drawPlot = function(el, data, i, j){
+        data = data[i];
         var self      = this;
         var threshold = self.context.getThreshold();
         var pathStart = el.data("pathStart")==undefined?"":el.data("pathStart");
@@ -749,83 +771,83 @@ function ColumnRender(){
     }
 
     this.drawPlot = function(el, data, i, j){
-        var self = this;
-        var threshold = self.context.getThreshold();
-        var w  = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
-        var padding = w/5;
-        var iw = (w-2*padding)/self.tdata.series.length;
+        el.mouseover(function(){
+            var dot = self.elements.dots[this.data("i")][this.data("j")];
+            for(var e in dot.events){
+                if (dot.events[e].name == 'mouseover') {
+                    dot.events[e].f.apply(dot);
+                }
+            }
+        }).mouseout(function(){
+            var dot = self.elements.dots[this.data("i")][this.data("j")];
+            for(var e in dot.events){
+                if (dot.events[e].name == 'mouseout') {
+                    dot.events[e].f.apply(dot);
+                }
+            }
+        });
+
         el.attr("fill", el.attr("stroke"));
         el.attr("fill-opacity", el.attr("opacity"));
         el.data("i",i);
         el.data("j",j);
 
-        if(self.context.options.stacked){
-            iw = w-2*padding;
-            el.mouseover(function(){
-                var dot = self.elements.dots[this.data("i")][this.data("j")];
-                for(var e in dot.events){
-                    if (dot.events[e].name == 'mouseover') {
-                        dot.events[e].f.apply(dot);
-                    }
-                }
-            }).mouseout(function(){
-                var dot = self.elements.dots[this.data("i")][this.data("j")];
-                for(var e in dot.events){
-                    if (dot.events[e].name == 'mouseout') {
-                        dot.events[e].f.apply(dot);
-                    }
-                }
-            });
-
-            var ix = data[j][0] - w/2 + padding + iw*i, y = data[j][1];
-            var pathStart = "M"+ix+","+threshold+"L"+ix+","+threshold+"L"+(ix+iw)+","+threshold+"L"+(ix+iw)+","+threshold+"Z";
-            var pathEnd   = "M"+ix+","+threshold+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+threshold+"Z";
-            el.attr("path", pathStart);
-            el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
-        }else{         
-            el.mouseover(function(){
-                var dot = self.elements.dots[this.data("i")][this.data("j")];
-                for(var e in dot.events){
-                    if (dot.events[e].name == 'mouseover') {
-                        dot.events[e].f.apply(dot);
-                    }
-                }
-            }).mouseout(function(){
-                var dot = self.elements.dots[this.data("i")][this.data("j")];
-                for(var e in dot.events){
-                    if (dot.events[e].name == 'mouseout') {
-                        dot.events[e].f.apply(dot);
-                    }
-                }
-            });
-
-            var ix = data[j][0] - w/2 + padding + iw*i, y = data[j][1];
-            var pathStart = "M"+ix+","+threshold+"L"+ix+","+threshold+"L"+(ix+iw)+","+threshold+"L"+(ix+iw)+","+threshold+"Z";
-            var pathEnd   = "M"+ix+","+threshold+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+threshold+"Z";
-            el.attr("path", pathStart);
-            el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
-        }
-    }
-
-    this.drawDots = function(){
         var self = this;
-        var min = self.context.getPixY(self.context.getMin());
-        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
+        var base = self.context.getThreshold();
         var w  = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
         var padding = w/5;
         var iw = (w-2*padding)/self.tdata.series.length;
+        var ix = data[i][j][0] - w/2 + padding + iw*i, y = data[i][j][1];
 
-        for(var i=0;i<self.tdata.series.length;i++){
-            var data = self.tdata.series[i];
-            for(var j=0;j<data.length;j++){
-                var ix = data[j][0] - w/2 + padding + iw*i + iw/2, y = data[j][1];
-                var dot = self.elements.dots[i][j];
-                dot.attr("cx",ix);
-                dot.attr("cy",threshold);
-                var y = data[j][1];
-                dot.animate({"cy":y}, self.options.timing, self.options.animationType);
-            }   
+
+        var pathStart = "M"+ix+","+base+"L"+ix+","+base+"L"+(ix+iw)+","+base+"L"+(ix+iw)+","+base+"Z";
+        var pathEnd   = "M"+ix+","+base+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+base+"Z";
+
+        if(self.context.options.stacked){
+            iw = w-2*padding;
+            ix = data[i][j][0] - w/2 + padding;
+
+            if(i>0){
+                var baseNew = base; 
+                for(var ii=0;ii<i;ii++){
+                    var dis = base - data[ii][j][1]
+                    baseNew  -= dis, y -= dis;
+                }
+                base = baseNew;
+            }
+
+            pathStart = "M"+ix+","+base+"L"+ix+","+base+"L"+(ix+iw)+","+base+"L"+(ix+iw)+","+base+"Z";
+            pathEnd   = "M"+ix+","+base+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+base+"Z";
         }
+        
+        el.attr("path", pathStart);
+        el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
+    }
+    
+    this.drawDot = function(el, data, i, j){
+        var self = this;
+        var base = self.context.getThreshold();
+        var w  = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
+        var padding = w/5;
+        var iw = (w-2*padding)/self.tdata.series.length;
+        var ix = data[i][j][0] - w/2 + padding + iw*i + iw/2, y = data[i][j][1];
+
+        if(self.options.stacked){
+            iw = w-2*padding;
+            ix = data[i][j][0];
+
+            if(i>0){
+                for(var ii=0;ii<i;ii++){
+                    var dis = base - data[ii][j][1]
+                    y -= dis;
+                }
+            }
+        }
+
+        var dot = self.elements.dots[i][j];
+        dot.attr("cx",ix);
+        dot.attr("cy",base);
+        dot.animate({"cy":y}, self.options.timing, self.options.animationType);
     }
 }
 
