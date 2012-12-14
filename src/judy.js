@@ -1,95 +1,101 @@
-var _options = {
-    width:600,
-    height:400,
-    margin:[20,20,40,80],
-    bgAttr:{
-       fill:"#ffffff",
-       "stroke-width":0
-    },
-    threshold: null,
-    formatX: null,
-    formatY: null,
-    getX: null,
-    getY: null,
-    showTracker:true,
-    trackerAttr:{
-        "stroke-width":1,
-        "opacity":0.5,
-        "fill":"#666666"
-    },
-    showGrid:true,
-    gridXAttr:{
-      "stroke-width":1,
-      "opacity":0.1,
-      fill:"#666666",
-    },
-    gridYAttr:{
-      "stroke-width":1,
-      "opacity":0.1,
-      fill:"#666666",
-    },
-    tickSize:10,
-    tickLength:5,
-    tickInterval: null,
-    tickFixed:2,
-    tickYAttr:{
-      "font-size":12,
-      fill:"#666666",
-      "opacity":0.8
-    },
-    tickXAttr:{
-      "font-size":12,
-      "fill":"#666666",
-      "opacity":0.8
-    },
-    getTickY: null,
-    formatTickY: null,
-    getTickX: null,
-    formatTickX: null,
-    tipAttr:{
-      "stroke-width":2,
-      "opacity":0.8,
-      "fill":"#f4f4f4",
-      "stroke":"#666666",
-      "padding":5,
-      "textAttr":{
-        "font-size":12,
-        "fill":"#000000",
-        "opacity":1,
-        "text-anchor":"start"
-      }
-    },
-    getTipText:null,
-    lineAttr:{
-      "stroke-width":3,
-      "opacity":0.9       
-    },
-    lineHoverAttr:{
-      "stroke-width":4,
-      "opacity":0.9       
-    },
-    dotAttr:{
-      "stroke-width":2,
-      "r":3,
-      "opacity":1
-    },
-    dotHoverAttr:{
-      "stroke-width":2,
-      "r":4,
-      "opacity":1
-    },
-    colors:[
-      ["#075697"],
-      ["#970707"],
-      ["#079741"]
-    ],
-    timing:500,
-    dotTiming:100
-};
-
 function Chart(container, type, data, options){
-    extend(_options, options);
-    this.options = _options;
+    this.options = {
+        margin:[20,20,40,80],
+        bgAttr:{
+           fill:"#ffffff",
+           "stroke-width":0
+        },
+        stacked:false,
+        threshold: null,
+        formatX: null,
+        formatY: null,
+        getX: null,
+        getY: null,
+        showTracker:true,
+        trackerAttr:{
+            "stroke-width":1,
+            "opacity":0.5,
+            "fill":"#666666"
+        },
+        showGrid:true,
+        gridXAttr:{
+          "stroke-width":1,
+          "opacity":0.1,
+          fill:"#666666",
+        },
+        gridYAttr:{
+          "stroke-width":1,
+          "opacity":0.1,
+          fill:"#666666",
+        },
+        tickSize:10,
+        tickLength:5,
+        tickInterval: null,
+        tickFixed:2,
+        tickYAttr:{
+          "font-size":12,
+          fill:"#666666",
+          "opacity":0.8
+        },
+        tickXAttr:{
+          "font-size":12,
+          "fill":"#666666",
+          "opacity":0.8
+        },
+        getTickY: null,
+        formatTickY: null,
+        getTickX: null,
+        formatTickX: null,
+        tipAttr:{
+          "stroke-width":2,
+          "opacity":0.8,
+          "fill":"#f4f4f4",
+          "stroke":"#666666",
+          "padding":5,
+          "textAttr":{
+            "font-size":12,
+            "fill":"#000000",
+            "opacity":1,
+            "text-anchor":"start"
+          }
+        },
+        getTipText:null,
+        lineAttr:{
+          "stroke-width":3,
+          "opacity":0.9       
+        },
+        lineHoverAttr:{
+          "stroke-width":4,
+          "opacity":0.9       
+        },
+        dotAttr:{
+          "stroke-width":2,
+          "r":3,
+          "opacity":1
+        },
+        dotHoverAttr:{
+          "stroke-width":2,
+          "r":4,
+          "opacity":1
+        },
+        colors:[
+          ["#075697"],
+          ["#970707"],
+          ["#079741"]
+        ],
+        animationType:"<",
+        timing:500,
+        dotTiming:100
+    };
+
+    extend(this.options, options);
+    
+    if(this.options.width == undefined){
+        this.options.width = container.clientWidth;
+    }
+    if(this.options.height == undefined){
+        this.options.height = container.clientHeight;
+    }
 
     var gc = Raphael(container, this.options.width, this.options.height);
     this.setGC(gc);
@@ -106,7 +112,7 @@ Chart.prototype = {
             ticks:[[[],[]],[[],[]]], 
             dots:[]     
         }
-
+        
         this.setSize({width: this.options.width, height: this.options.height});
         this.setFrame();
         this.setMax();
@@ -168,6 +174,9 @@ Chart.prototype = {
         return max;
     },
     getMax: function(){
+        if(this.options.getMax){
+            return this.options.getMax();
+        }
         return this.max;
     },
     setMin: function(){
@@ -189,6 +198,9 @@ Chart.prototype = {
         return min;
     },
     getMin: function(){
+        if(this.options.getMin){
+            return this.options.getMin();
+        }
         return this.min;
     },
     getPixX: function(count, i, position){
@@ -265,6 +277,9 @@ Chart.prototype = {
             return this.options.getTipText(data,i);
         }else
             return data[i]['y']+"";
+    },
+    getThreshold: function(){
+        return (this.options.threshold!=null)?this.getPixY(this.options.threshold):this.getPixY(this.getMin());
     }
 }
 
@@ -540,51 +555,62 @@ Render.prototype = {
     },
     drawPlots: function(){
         var self = this;
-        var min = self.context.getPixY(self.context.getMin());
-        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
-        var w = this.context.getSize().width;
-        var h = this.context.getSize().height;
-
         for(var i=0;i<self.tdata.series.length;i++){
-            var path = self.elements.series[i];
-            var dot = self.elements.dots[i];
+            var serie = self.elements.series[i];
             var data = self.tdata.series[i];
-            var pathStart, pathEnd;
             for(var j=0;j<data.length;j++){
-                var x = data[j][0], y = data[j][1];
-                if(j==0){
-                    pathStart  = "M"+x+","+threshold;
-                    pathEnd = "M"+x+","+y;
-                }else{
-                    var x1 = data[j-1][0], y1 = data[j-1][1];
-                    var ix = (x - x1)/1.4;
-                    pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
-                    pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
+                var el = serie;
+                if(serie.length){
+                   el = serie[j];
                 }
+                self.drawPlot(el, data, i, j);
             }
-            path.attr("path", pathStart);
-            path.animate({path:pathEnd}, self.options.timing,"<");
+        }
+    },
+    drawPlot: function(el, data, i, j){
+        var self = this;
+        var threshold = self.context.getThreshold();
+
+        var pathStart = el.data("pathStart")==undefined?"":el.data("pathStart");
+        var pathEnd = el.data("pathEnd")==undefined?"":el.data("pathEnd");
+        
+        var x = data[j][0], y = data[j][1];
+        if(j==0){
+            pathStart  = "M"+x+","+threshold;
+            pathEnd = "M"+x+","+y;
+        }else{
+            var x1 = data[j-1][0], y1 = data[j-1][1];
+            var ix = (x - x1)/1.4;
+            pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
+            pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
+        }
+        el.data("pathStart", pathStart);
+        el.data("pathEnd", pathEnd);
+
+        if(j == data.length-1){
+            el.attr("path", pathStart);
+            el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
         }
     },
     drawDots: function(){
         var self = this;
-        var min = self.context.getPixY(self.context.getMin());
-        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
-        var w = this.context.getSize().width;
-        var h = this.context.getSize().height;
-
         for(var i=0;i<self.tdata.series.length;i++){
             var dot = self.elements.dots[i];
             var data = self.tdata.series[i];
             for(var j=0;j<data.length;j++){
-                var x = data[j][0], y = data[j][1];
-                var d = dot[j];
-                d.attr("cx",x);
-                d.attr("cy",threshold);
-                var y = data[j][1];
-                d.animate({"cy":y}, self.options.timing, "<");
+                 var d = dot[j];
+                 self.drawDot(d, data, i, j);
             }   
         }
+    },
+    drawDot:function(el, data, i, j){
+        var self = this;
+        var threshold = self.context.getThreshold();
+
+        var x = data[j][0], y = data[j][1];
+        el.attr("cx",x);
+        el.attr("cy",threshold);
+        el.animate({"cy":y}, self.options.timing, self.options.animationType);
     },
     drawTips: function (x, y, els) {
         var angle  = 5, indent = 6, padding = this.options.tipAttr.padding;
@@ -639,6 +665,16 @@ Render.prototype = {
         path.attr("path",pathString);
         path.show();
     },
+    clearTips: function(){
+        for(var i=0;i<this.elements.tips.length;i++){
+            this.elements.tips[i].remove();
+        }
+        for(var i=0;i<this.elements.tipTexts.length;i++){
+            this.elements.tipTexts[i].remove();
+        }
+        this.elements.tips.splice(0);
+        this.elements.tipTexts.splice(0);
+    },
     getDots:function(type, pos1, pos2){
         var els = [];
         //vertical
@@ -669,16 +705,6 @@ Render.prototype = {
             }
         }
         return els;
-    },
-    clearTips: function(){
-        for(var i=0;i<this.elements.tips.length;i++){
-            this.elements.tips[i].remove();
-        }
-        for(var i=0;i<this.elements.tipTexts.length;i++){
-            this.elements.tipTexts[i].remove();
-        }
-        this.elements.tips.splice(0);
-        this.elements.tipTexts.splice(0);
     }
 }
 
@@ -695,51 +721,48 @@ function LineRender(){
 function AreaRender(){
     extend(AreaRender.prototype, Render.prototype);
 
-    this.drawPlots = function(){
-        var self = this;
-        var min = self.context.getPixY(self.context.getMin());
-        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
-        
-        var w = this.context.getSize().width;
-        var h = this.context.getSize().height;
+    this.drawPlot = function(el, data, i, j){
+        var self      = this;
+        var threshold = self.context.getThreshold();
+        var pathStart = el.data("pathStart")==undefined?"":el.data("pathStart");
+        var pathEnd   = el.data("pathEnd")==undefined?"":el.data("pathEnd");
+        var x = data[j][0], y = data[j][1];
 
-        for(var i=0;i<self.tdata.series.length;i++){
-            var path = self.elements.series[i];
-            var data = self.tdata.series[i];
-            var pathStart, pathEnd;
-
+        if(j==0){
+            pathStart  = "M"+x+","+threshold;
+            pathEnd = "M"+x+","+y;
+        }else{
             var x0 = data[0][0], y0 = data[0][1];
-            for(var j=0;j<data.length;j++){
-                var x = data[j][0], y = data[j][1];
-                if(j==0){
-                    pathStart  = "M"+x+","+threshold+"L"+x+","+threshold;
-                    pathEnd    = "M"+x+","+threshold+"L"+x+","+y;
-                }else{
-                    var x1 = data[j-1][0], y1 = data[j-1][1];
-                    var ix = (x - x1)/1.4;
-                    pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
-                    pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
+            var x1 = data[j-1][0], y1 = data[j-1][1];
+            var ix = (x - x1)/1.4;
+            pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
+            pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
 
-                    if(j == data.length - 1){
-                        pathStart  += "L"+x+","+threshold+"Z"+x+","+threshold;
-                        pathEnd    += "L"+x+","+threshold+"Z"+x0+","+threshold;
-                    }
-                }
+            if(j == data.length - 1){
+                pathStart  += "L"+x+","+threshold+"L"+x+","+threshold+"L"+x0+","+threshold+"Z"+x0+","+threshold;
+                pathEnd    += "L"+x+","+y+"L"+x+","+threshold+"L"+x0+","+threshold+"Z"+x0+","+y;
             }
-            path.attr("fill", path.attr("stroke"));
-            path.attr("fill-opacity", path.attr("opacity")/2);
-            path.attr("path", pathStart);
-            path.animate({path:pathEnd}, self.options.timing,"<");
+        }
+        el.data("pathStart", pathStart);
+        el.data("pathEnd", pathEnd);
+
+        if(j == data.length-1){
+            el.attr("fill", el.attr("stroke"));
+            el.attr("fill-opacity", el.attr("opacity")/2);
+            el.attr("path", pathStart);
+            el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
         }
     }
     
 }
+
 
 /*
  * Column Chart 
  */
 function ColumnRender(){
     extend(ColumnRender.prototype, Render.prototype);
+
     this.align = 1;
     
     this.createPlots = function(){
@@ -755,46 +778,148 @@ function ColumnRender(){
             }
         }
     }
-    this.drawPlots = function(){
+
+    this.drawPlot = function(el, data, i, j){
         var self = this;
-        var min = self.context.getPixY(self.context.getMin());
-        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
+        var threshold = self.context.getThreshold();
         var w  = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
         var padding = w/5;
         var iw = (w-2*padding)/self.tdata.series.length;
+        el.attr("fill", el.attr("stroke"));
+        el.attr("fill-opacity", el.attr("opacity"));
+        el.data("i",i);
+        el.data("j",j);
 
-        for(var i=0;i<self.tdata.series.length;i++){
-            var data = self.tdata.series[i];
-            for(var j=0;j<data.length;j++){
-               
-                var path = self.elements.series[i][j];
-                path.attr("fill", path.attr("stroke"));
-                path.attr("fill-opacity", path.attr("opacity")/2);
-                path.data("i",i);
-                path.data("j",j);
-                path.mouseover(function(){
-                    var dot = self.elements.dots[this.data("i")][this.data("j")];
-                    for(var e in dot.events){
-                        if (dot.events[e].name == 'mouseover') {
-                            dot.events[e].f.apply(dot);
-                        }
+        if(self.context.options.stacked){
+            iw = w-2*padding;
+            el.mouseover(function(){
+                var dot = self.elements.dots[this.data("i")][this.data("j")];
+                for(var e in dot.events){
+                    if (dot.events[e].name == 'mouseover') {
+                        dot.events[e].f.apply(dot);
                     }
-                }).mouseout(function(){
-                    var dot = self.elements.dots[this.data("i")][this.data("j")];
-                    for(var e in dot.events){
-                        if (dot.events[e].name == 'mouseout') {
-                            dot.events[e].f.apply(dot);
-                        }
+                }
+            }).mouseout(function(){
+                var dot = self.elements.dots[this.data("i")][this.data("j")];
+                for(var e in dot.events){
+                    if (dot.events[e].name == 'mouseout') {
+                        dot.events[e].f.apply(dot);
                     }
-                });
-                var ix = data[j][0] - w/2 + padding + iw*i, y = data[j][1];
-                var pathStart = "M"+ix+","+threshold+"L"+ix+","+threshold+"L"+(ix+iw)+","+threshold+"L"+(ix+iw)+","+threshold+"Z";
-                var pathEnd   = "M"+ix+","+threshold+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+threshold+"Z";
-                path.attr("path", pathStart);
-                path.animate({path:pathEnd}, self.options.timing,"<");
-            }
+                }
+            });
+
+            var ix = data[j][0] - w/2 + padding + iw*i, y = data[j][1];
+            var pathStart = "M"+ix+","+threshold+"L"+ix+","+threshold+"L"+(ix+iw)+","+threshold+"L"+(ix+iw)+","+threshold+"Z";
+            var pathEnd   = "M"+ix+","+threshold+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+threshold+"Z";
+            el.attr("path", pathStart);
+            el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
+        }else{         
+            el.mouseover(function(){
+                var dot = self.elements.dots[this.data("i")][this.data("j")];
+                for(var e in dot.events){
+                    if (dot.events[e].name == 'mouseover') {
+                        dot.events[e].f.apply(dot);
+                    }
+                }
+            }).mouseout(function(){
+                var dot = self.elements.dots[this.data("i")][this.data("j")];
+                for(var e in dot.events){
+                    if (dot.events[e].name == 'mouseout') {
+                        dot.events[e].f.apply(dot);
+                    }
+                }
+            });
+
+            var ix = data[j][0] - w/2 + padding + iw*i, y = data[j][1];
+            var pathStart = "M"+ix+","+threshold+"L"+ix+","+threshold+"L"+(ix+iw)+","+threshold+"L"+(ix+iw)+","+threshold+"Z";
+            var pathEnd   = "M"+ix+","+threshold+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+threshold+"Z";
+            el.attr("path", pathStart);
+            el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
         }
     }
+
+
+    // this.drawPlots = function(){
+    //     var self = this;
+    //     var min = self.context.getPixY(self.context.getMin());
+    //     var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
+    //     var w  = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
+    //     var padding = w/5;
+    //     var iw = (w-2*padding)/self.tdata.series.length;
+        
+    //     if(self.context.options.stacked){
+    //         iw = w-2*padding;
+
+    //         for(var i=0;i<self.tdata.series.length;i++){
+    //             var data = self.tdata.series[i];
+    //             for(var j=0;j<data.length;j++){
+                   
+    //                 var path = self.elements.series[i][j];
+    //                 path.attr("fill", path.attr("stroke"));
+    //                 path.attr("fill-opacity", path.attr("opacity"));
+    //                 path.data("i",i);
+    //                 path.data("j",j);
+    //                 path.mouseover(function(){
+    //                     var dot = self.elements.dots[this.data("i")][this.data("j")];
+    //                     for(var e in dot.events){
+    //                         if (dot.events[e].name == 'mouseover') {
+    //                             dot.events[e].f.apply(dot);
+    //                         }
+    //                     }
+    //                 }).mouseout(function(){
+    //                     var dot = self.elements.dots[this.data("i")][this.data("j")];
+    //                     for(var e in dot.events){
+    //                         if (dot.events[e].name == 'mouseout') {
+    //                             dot.events[e].f.apply(dot);
+    //                         }
+    //                     }
+    //                 });
+
+
+    //                 var ix = data[j][0] - w/2 + padding + iw*i, y = data[j][1];
+    //                 var pathStart = "M"+ix+","+threshold+"L"+ix+","+threshold+"L"+(ix+iw)+","+threshold+"L"+(ix+iw)+","+threshold+"Z";
+    //                 var pathEnd   = "M"+ix+","+threshold+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+threshold+"Z";
+    //                 path.attr("path", pathStart);
+    //                 path.animate({path:pathEnd}, self.options.timing, self.options.animationType);
+    //             }
+    //         }
+    //     }else{
+    //         for(var i=0;i<self.tdata.series.length;i++){
+    //             var data = self.tdata.series[i];
+    //             for(var j=0;j<data.length;j++){
+                   
+    //                 var path = self.elements.series[i][j];
+    //                 path.attr("fill", path.attr("stroke"));
+    //                 path.attr("fill-opacity", path.attr("opacity"));
+    //                 path.data("i",i);
+    //                 path.data("j",j);
+    //                 path.mouseover(function(){
+    //                     var dot = self.elements.dots[this.data("i")][this.data("j")];
+    //                     for(var e in dot.events){
+    //                         if (dot.events[e].name == 'mouseover') {
+    //                             dot.events[e].f.apply(dot);
+    //                         }
+    //                     }
+    //                 }).mouseout(function(){
+    //                     var dot = self.elements.dots[this.data("i")][this.data("j")];
+    //                     for(var e in dot.events){
+    //                         if (dot.events[e].name == 'mouseout') {
+    //                             dot.events[e].f.apply(dot);
+    //                         }
+    //                     }
+    //                 });
+
+
+    //                 var ix = data[j][0] - w/2 + padding + iw*i, y = data[j][1];
+    //                 var pathStart = "M"+ix+","+threshold+"L"+ix+","+threshold+"L"+(ix+iw)+","+threshold+"L"+(ix+iw)+","+threshold+"Z";
+    //                 var pathEnd   = "M"+ix+","+threshold+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+threshold+"Z";
+    //                 path.attr("path", pathStart);
+    //                 path.animate({path:pathEnd}, self.options.timing, self.options.animationType);
+    //             }
+    //         }
+    //     }
+    // }
+
     this.drawDots = function(){
         var self = this;
         var min = self.context.getPixY(self.context.getMin());
@@ -811,7 +936,7 @@ function ColumnRender(){
                 dot.attr("cx",ix);
                 dot.attr("cy",threshold);
                 var y = data[j][1];
-                dot.animate({"cy":y}, self.options.timing, "<");
+                dot.animate({"cy":y}, self.options.timing, self.options.animationType);
             }   
         }
     }

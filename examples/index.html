@@ -2,152 +2,66 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Judy</title>
+    <title>judy</title>
     <meta charset="utf-8" />    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel='stylesheet' type="text/css" href='css/style.css'>
     <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="../src/raphael-min.js" type="text/javascript" charset="utf-8"></script>
     <script src="../src/judy.js" type="text/javascript" charset="utf-8"></script>
-
   </head>
   <body>
-  <div class="left">
-  <div>
-    <ul>
-      <li class="logo">Judy</li>
-      <li class="category">
-        <a href="#about">Introduction</a>
-      </li>  
-      <li class="category parent">
-        <a href="#">Line Charts </a>
-        <ul>
-          <li> 
-            <a href="#">Line</a>
-          </li>
-          <li> 
-            <a href="#">Area</a>
-          </li>
-          <li> 
-            <a href="#"> Column </a>   
-          </li>
-        </ul>
-      </li>
-      <li class="category parent">
-        <a href="#">Area Charts </a>
-        <ul>
-          <li> 
-            <a href="#">Line</a>
-          </li>
-          <li> 
-            <a href="#">Area</a>
-          </li>
-          <li> 
-            <a href="#"> Column </a>   
-          </li>
-        </ul>
-      </li>
-      <li class="category parent">
-        <a href="#">Column and Bar Charts</a>
-        <ul>
-          <li> 
-            <a href="#">Line</a>
-          </li>
-          <li> 
-            <a href="#">Area</a>
-          </li>
-          <li> 
-            <a href="#"> Column </a>   
-          </li>
-        </ul>
-      </li>
-      <li class="category parent">
-        <a href="#">Pie Charts </a>
-        <ul>
-          <li> 
-            <a href="#">Line</a>
-          </li>
-          <li> 
-            <a href="#">Area</a>
-          </li>
-          <li> 
-            <a href="#"> Column </a>   
-          </li>
-        </ul>
-      </li>
-      <li class="category parent">
-        <a href="#">Advanced Charts </a>
-        <ul>
-          <li> 
-            <a href="#">Line</a>
-          </li>
-          <li> 
-            <a href="#">Area</a>
-          </li>
-          <li> 
-            <a href="#"> Column </a>   
-          </li>
-        </ul>
-      </li>
-    </ul>     
-  </div>
-  </div> 
-
-    <div class="right">
+    <div class="main">
       <div class="category">
         <h1>Introduction</h1>
         <div class="subcategory">
           <h2>About</h2>
           <div>
             <p>
-             <a href="http://github.com/nodengine/judy">Judy</a> is a charting library licensed under the BSD license.
+             <a href="http://github.com/nodengine/judy">judy</a> is a javascript charting library for web application development.
             </p>
           </div>
         </div>
         <div class="subcategory">
-          <h2>Features</h2>
-        </div>
-        <div class="subcategory">
-          <h2>Contributing</h2>
-        </div>
-        <div class="subcategory">
           <h2>License</h2>
           <div>
-            <p>Copyright&nbsp;&copy; 2012 &nbsp;&nbsp;Zhiyu Zheng</p>
-            <p>All rights reserved.</p>
-<p>
-<br/>
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-<br/>
-<br/>
-</p>
-<p>
-Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-<br/>
-Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-</p>
-<br/>
-<p>
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+              <p>Copyright&nbsp;&copy;2012&nbsp;&nbsp;zhiyu zheng &nbsp;&nbsp; all rights reserved.</p>  
+              <br/>          
+              <p>
+              Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+              </p>
+              <br/>
+              <p>
+              The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+              <br/>
+              Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+              </p>
+              <br/>
+              <p>
+              THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+              </p>
           </div>
         </div>
         <div class="subcategory">
           <h2>Contact</h2>
-          
+          <div>any question about judy, please feel free to contact <a href="mailto:zhengzhiyu@yeah.net">zhengzhiyu@yeah.net</a></div>
         </div>
       </div>  
       <div class="category">
         <h1>Line Charts</h1>
         <div class="subcategory">
-          <h2>Basic Line Chart</h2>
-          <div id='chart'/></div>
-          
-          <h2>Basic Area Chart</h2>
-          <div id='chart1'/></div>
+          <div id='chart' style="height:400px;" /></div>
 
-          <h2>Basic Column Chart</h2>
-          <div id='chart2'/></div>
-
+        </div>
+        <h1>Area Charts</h1>
+        <div class="subcategory">
+          <div id='chart1' style="height:400px;"/></div>
+        </div>
+        <h1>Column Charts</h1>
+        <div class="subcategory">
+          <div id='chart2'  style="height:400px;"/></div>
+          <div id='chart201' style="height:400px;"/></div>
+          <div id='chart202' style="height:400px;"/></div>
         </div>
       </div >
       </div>
@@ -181,7 +95,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                    [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
                    [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4}],
                    [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}, {x:9.8,y:10}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9}]
-                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2"]}
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        }
+      } 
     );
     chart.draw();
 
@@ -189,7 +108,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                    [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
                    [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4}],
                    [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}, {x:9.8,y:10}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9}]
-                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2"]}
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        }
+      } 
     );
     chart1.draw();
 
@@ -197,8 +121,56 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                    [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
                    [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}],
                    [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}]
-                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]}
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        },
+        animationType:"bounce",
+        lineAttr:{
+          "stroke-width":1,
+          "opacity":0.9       
+        }
+      }
     );
     chart2.draw();
+
+    var chart201 = new Chart(document.getElementById("chart201"),"Column",{series:[
+                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
+                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}],
+                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        },
+        animationType:"bounce",
+        threshold:10,
+        lineAttr:{
+          "stroke-width":1,
+          "opacity":0.9       
+        }
+      }
+    );
+    chart201.draw();
+
+    var chart202 = new Chart(document.getElementById("chart202"),"Column",{series:[
+                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
+                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}],
+                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]},
+      {
+        getMin:function(){
+          return 0;
+        },
+        stacked:true,
+        animationType:"bounce",
+        lineAttr:{
+          "stroke-width":1,
+          "opacity":0.9       
+        }
+      }
+    );
+    chart202.draw();
 
 </script>

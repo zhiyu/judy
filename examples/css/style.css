@@ -130,34 +130,34 @@ a.btn:hover{
   color: #000;
   text-decoration: underline;
 }
-.right{
+.main{
   position: absolute;
-  left:200px;
+  left:0px;
   top:0px;
   right: 0px;
   overflow-y:auto; 
   background: #ffffff;
 }
 
-.right .category{
+.main .category{
   margin:0px 30px;
 }
 
-.right h1{
+.main h1{
     font-size: 14px;
     line-height: 40px;
     text-indent: 10px;
     border-bottom: 1px solid #e7e7e7;
 }
-.right h2{
+.main h2{
     color:#555;
     border-bottom: 1px dashed #e7e7e7;
     font-size: 14px;
 }
-.right .subcategory{
+.main .subcategory{
 	margin:30px;
 }
-.right .subcategory div{
+.main .subcategory div{
   padding:20px 0px 0px 0px;
   line-height: 20px;
   color:#666;
