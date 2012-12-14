@@ -1,3 +1,5 @@
+<img src="http://b.hiphotos.baidu.com/news/pic/item/9825bc315c6034a8b4f73f51cb134954082376cd.jpg" />
+
 About
 -------------------------
 [judy](http://github.com/nodengine/judy) is a javascript charting library for web application development.
