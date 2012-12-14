@@ -1,5 +1,6 @@
-<img src="http://b.hiphotos.baidu.com/news/pic/item/9825bc315c6034a8b4f73f51cb134954082376cd.jpg" />
-
+<script src="./src/raphael-min.js" type="text/javascript" charset="utf-8"></script>
+<script src="./src/judy.js" type="text/javascript" charset="utf-8"></script>
+    
 About
 -------------------------
 [judy](http://github.com/nodengine/judy) is a javascript charting library for web application development.
