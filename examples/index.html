@@ -69,28 +69,6 @@
 </html>
 
 <script type="text/javascript">
-    $(function(){
-         $(".category",".left").click(function(){
-            $("ul",".left .parent").each(function(){
-              if($(this).css("display")!="none"){
-                $(this).slideUp(300);
-              }
-            });
-            $(".category a",".left").removeClass("selected");
-            $($("a",this)[0]).addClass("selected");
-            if($('ul',this).css("display")=="none")
-              $('ul',this).slideDown(300);
-            else
-              $('ul',this).slideUp(300);
-
-          });
-   
-          $(".category ul a",".left").click(function(evt){
-              evt.stopPropagation();
-              //return false;
-          });
-    });
-
     var chart = new Chart(document.getElementById("chart"),"Line",{series:[
                    [3,10,12,6,10,3,10,12,6,10,3,10],
                    [4,9,15,5,19,4,9,15,15,5,19,4],
