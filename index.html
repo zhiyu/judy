@@ -6,7 +6,6 @@
     <meta charset="utf-8" />    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel='stylesheet' type="text/css" href='css/style.css'>
-    <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/raphael-min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/judy.js" type="text/javascript" charset="utf-8"></script>
   </head>
@@ -69,28 +68,6 @@
 </html>
 
 <script type="text/javascript">
-    $(function(){
-         $(".category",".left").click(function(){
-            $("ul",".left .parent").each(function(){
-              if($(this).css("display")!="none"){
-                $(this).slideUp(300);
-              }
-            });
-            $(".category a",".left").removeClass("selected");
-            $($("a",this)[0]).addClass("selected");
-            if($('ul',this).css("display")=="none")
-              $('ul',this).slideDown(300);
-            else
-              $('ul',this).slideUp(300);
-
-          });
-   
-          $(".category ul a",".left").click(function(evt){
-              evt.stopPropagation();
-              //return false;
-          });
-    });
-
     var chart = new Chart(document.getElementById("chart"),"Line",{series:[
                    [3,10,12,6,10,3,10,12,6,10,3,10],
                    [4,9,15,5,19,4,9,15,15,5,19,4],
