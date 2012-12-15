@@ -263,7 +263,7 @@ Chart.prototype = {
         return this.options.formatTickX != undefined?this.options.formatTickX(tickVal,i):tickVal;
     },
     getTipText: function(data, i){
-        return this.options.getTipText != undefined?this.options.getTipText(data,i):data[i]['y']+"";
+        return this.options.getTipText != undefined?this.options.getTipText(data,i):data[i]+"";
     },
     getThreshold: function(){
         return (this.options.threshold!=null)?this.getPixY(this.options.threshold):this.getPixY(this.getMin());
