@@ -6,9 +6,9 @@
     <meta charset="utf-8" />    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel='stylesheet' type="text/css" href='css/style.css'>
-    <script src="./js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="./js/raphael-min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="./js/judy.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../src/raphael-min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="../src/judy.js" type="text/javascript" charset="utf-8"></script>
   </head>
   <body>
     <div class="main">
@@ -69,11 +69,33 @@
 </html>
 
 <script type="text/javascript">
+    $(function(){
+         $(".category",".left").click(function(){
+            $("ul",".left .parent").each(function(){
+              if($(this).css("display")!="none"){
+                $(this).slideUp(300);
+              }
+            });
+            $(".category a",".left").removeClass("selected");
+            $($("a",this)[0]).addClass("selected");
+            if($('ul',this).css("display")=="none")
+              $('ul',this).slideDown(300);
+            else
+              $('ul',this).slideUp(300);
+
+          });
+   
+          $(".category ul a",".left").click(function(evt){
+              evt.stopPropagation();
+              //return false;
+          });
+    });
+
     var chart = new Chart(document.getElementById("chart"),"Line",{series:[
-                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
-                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4}],
-                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}, {x:9.8,y:10}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9}]
-                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2"]},
+                   [3,10,12,6,10,3,10,12,6,10,3,10],
+                   [4,9,15,5,19,4,9,15,15,5,19,4],
+                   [7,1,5,10,6,9,20,10,5,10,6,9]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2","test3"]},
       {
         getMin:function(){
           return 0;
@@ -83,10 +105,10 @@
     chart.draw();
 
     var chart1 = new Chart(document.getElementById("chart1"),"Area",{series:[
-                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
-                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4}],
-                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}, {x:9.8,y:10}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9}]
-                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2"]},
+                   [3,10,12,6,10,3,10,12,6,10,3,10],
+                   [4,9,15,5,19,4,9,15,15,5,19,4],
+                   [7,1,5,10,6,9,20,10,5,10,6,9]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2","test3"]},
       {
         getMin:function(){
           return 0;
@@ -96,10 +118,10 @@
     chart1.draw();
 
     var chart2 = new Chart(document.getElementById("chart2"),"Column",{series:[
-                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
-                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}],
-                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}]
-                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]},
+                   [3,10,12,6,10,3,10,12,6,10,3,10],
+                   [4,9,15,5,19,4,9,15,15,5,19,4],
+                   [7,1,5,10,6,9,20,10,5,10,6,9]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2","test3"]},
       {
         getMin:function(){
           return 0;
@@ -114,10 +136,10 @@
     chart2.draw();
 
     var chart201 = new Chart(document.getElementById("chart201"),"Column",{series:[
-                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
-                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}],
-                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}]
-                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]},
+                   [3,10,12,6,10,3,10,12,6,10,3,10],
+                   [4,9,15,5,19,4,9,15,15,5,19,4],
+                   [7,1,5,10,6,9,20,10,5,10,6,9]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2","test3"]},
       {
         getMin:function(){
           return 0;
@@ -133,10 +155,10 @@
     chart201.draw();
 
     var chart202 = new Chart(document.getElementById("chart202"),"Column",{series:[
-                   [{x:3,y:3},{x:7.3,y:10}, {x:9.8,y:12}, {x:1,y:6},{x:3.5,y:10},{x:3,y:3},{x:7.3,y:10}],
-                   [{x:3,y:4},{x:7.3,y:9}, {x:9.8,y:15}, {x:1,y:5},{x:3.5,y:19},{x:3,y:4},{x:7.3,y:9}],
-                   [{x:3,y:7},{x:7.3,y:1}, {x:9.8,y:5}, {x:1,y:10},{x:3.5,y:6},{x:3,y:9},{x:7.3,y:20}]
-                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul"],legends:["test1","test2"]},
+                   [3,10,12,6,10,3,10,12,6,10,3,10],
+                   [4,9,15,5,19,4,9,15,15,5,19,4],
+                   [7,1,5,10,6,9,20,10,5,10,6,9]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["test1","test2","test3"]},
       {
         getMin:function(){
           return 0;

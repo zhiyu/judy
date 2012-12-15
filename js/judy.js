@@ -1,5 +1,6 @@
 function Chart(container, type, data, options){
     this.options = {
+        title:"",
         margin:[20,20,40,80],
         bgAttr:{
            fill:"#ffffff",
@@ -9,7 +10,6 @@ function Chart(container, type, data, options){
         threshold: null,
         formatX: null,
         formatY: null,
-        getX: null,
         getY: null,
         showTracker:true,
         trackerAttr:{
@@ -103,6 +103,7 @@ function Chart(container, type, data, options){
     this.setType(type);
     this.setData(data);
     this.init();
+    return this;
 }
 
 Chart.prototype = {
@@ -239,10 +240,7 @@ Chart.prototype = {
         return h * (1-(y-min)/(max-min)) + this.options.margin[0];
     },
     getY: function(data,i){
-        return this.options.getY != undefined?this.options.getY(data, i):data[i]['y'];
-    },
-    getX: function(data,i){
-        return this.options.getX != undefined?this.options.getX(data, i):data[i]['x'];
+        return this.options.getY != undefined?this.options.getY(data, i):data[i];
     },
     getTickY: function(i){
         var max = this.getMax();
@@ -265,7 +263,7 @@ Chart.prototype = {
         return this.options.formatTickX != undefined?this.options.formatTickX(tickVal,i):tickVal;
     },
     getTipText: function(data, i){
-        return this.options.getTipText != undefined?this.options.getTipText(data,i):data[i]['y']+"";
+        return this.options.getTipText != undefined?this.options.getTipText(data,i):data[i]+"";
     },
     getThreshold: function(){
         return (this.options.threshold!=null)?this.getPixY(this.options.threshold):this.getPixY(this.getMin());
