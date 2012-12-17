@@ -70,12 +70,12 @@ function Chart(container, type, data, options){
         },
         dotAttr:{
           "stroke-width":2,
-          "r":3,
+          "r":4,
           "opacity":1
         },
         dotHoverAttr:{
           "stroke-width":2,
-          "r":4,
+          "r":5,
           "opacity":1
         },
         colors:[
@@ -425,8 +425,8 @@ Render.prototype = {
             for(var j = 0;j<data.length;j++){
                 var d = self.gc.circle(0, 0);
                 d.attr(self.options.dotAttr);
-                d.attr("stroke", self.options.bgAttr.fill);
-                d.attr("fill", self.options.colors[i]);
+                d.attr("stroke", self.options.colors[i]);
+                d.attr("fill", self.options.bgAttr.fill);
                 d.data("index",j);
                 d.data("data", self.data.series[i]);
                 d.mouseover(function(){
