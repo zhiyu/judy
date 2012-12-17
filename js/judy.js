@@ -1,11 +1,15 @@
 function Chart(container, type, data, options){
     this.options = {
         title:"",
+<<<<<<< HEAD
         titleAttr:{
             "font-weight":"bold",
             "font-size":14
         },
         margin:[60,20,40,80],
+=======
+        margin:[20,20,40,80],
+>>>>>>> 863b6a73e9f565372264526537ae07e2473b93ff
         bgAttr:{
            fill:"#ffffff",
            "stroke-width":0
