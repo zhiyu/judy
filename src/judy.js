@@ -1,7 +1,11 @@
 function Chart(container, type, data, options){
     this.options = {
         title:"",
-        margin:[20,20,40,80],
+        titleAttr:{
+            "font-weight":"bold",
+            "font-size":14
+        },
+        margin:[60,20,40,80],
         bgAttr:{
            fill:"#ffffff",
            "stroke-width":0
@@ -85,7 +89,10 @@ function Chart(container, type, data, options){
         ],
         animationType:"<",
         timing:500,
-        dotTiming:100
+        dotTiming:100,
+        legendAttr:{
+
+        }
     };
 
     extend(this.options, options);
@@ -293,7 +300,8 @@ Render.prototype = {
             series:[], 
             dots: [],
             tips: [],
-            tipTexts:[]
+            tipTexts:[],
+            legends:[[],[]]
         };
     },
     clear:function(){
@@ -303,12 +311,16 @@ Render.prototype = {
         this.buildPlotsData();
     },
     create: function(){
+        this.createTitle();
+        this.createLegends();
         this.createAxes();
         this.createPlots();
         this.createDots();
     },
     draw: function(){
         var self = this;
+        self.drawTitle();
+        self.drawLegends();
         self.drawAxes();
         self.drawBackground();
         setTimeout(function(){
@@ -327,6 +339,41 @@ Render.prototype = {
                 var y =  self.context.getPixY(self.context.getY(data,j));
                 this.tdata.series[i][j] = [x, y];
             }
+        }
+    },
+    createTitle: function(){
+        var self = this;
+        var frame = self.context.getFrame();
+        var x =frame.x, y= 10;
+        var text = self.gc.text(x, y);
+        text.attr(self.options.titleAttr);
+        text.attr("text-anchor", "start");
+        text.attr("text", self.options.title);
+    },
+    createLegends: function(){
+        var self = this;
+        var frame = self.context.getFrame();
+        
+        var x =frame.x, y= frame.y - 20;
+        var margin = [10, 15];
+        for(var i=0;i<self.data.legends.length;i++){
+            var title = self.data.legends[i];
+            
+            if(i>0){
+                x = margin[1]+self.elements.legends[1][i-1].getBBox().x + self.elements.legends[1][i-1].getBBox().width;
+            }
+
+            var circle = self.gc.circle(x, y);
+            circle.attr("stroke", self.options.colors[i]);
+            circle.attr("fill", self.options.colors[i]);
+            circle.attr("r", "5");
+            var text = self.gc.text(x+margin[0], y);
+            text.attr(self.options.legendAttr);
+            text.attr("width", this.options.margin[3]);
+            text.attr("text-anchor", "start");
+            text.attr("text", title);
+            self.elements.legends[0].push(circle);
+            self.elements.legends[1].push(text);
         }
     },
     createAxes:function(){
@@ -441,6 +488,12 @@ Render.prototype = {
             }
             self.elements.dots.push(dot);
         }
+    },
+    drawTitle: function(){
+
+    },
+    drawLegends: function(){
+
     },
     drawAxes: function(){
         var self = this;
