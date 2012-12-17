@@ -26,7 +26,7 @@ textarea{
 }
 textarea:focus{outline:none;}
 
-.main .subcategory .chart{padding-bottom: 50px;}
+.main .subcategory .chart{margin-bottom: 50px;}
 .clr{clear:both;}
 .txt{padding:5px 5px;background:#98a594;color:#fff;border:none;width:200px;}
 .readonly{height:30px;line-height:30px;background:none;border:none;width:200px;text-indent:5px;}
