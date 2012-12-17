@@ -1,6 +1,11 @@
 function Chart(container, type, data, options){
     this.options = {
-        margin:[20,20,40,80],
+        title:"",
+        titleAttr:{
+            "font-weight":"bold",
+            "font-size":14
+        },
+        margin:[60,20,40,80],
         bgAttr:{
            fill:"#ffffff",
            "stroke-width":0
@@ -9,7 +14,6 @@ function Chart(container, type, data, options){
         threshold: null,
         formatX: null,
         formatY: null,
-        getX: null,
         getY: null,
         showTracker:true,
         trackerAttr:{
@@ -70,12 +74,12 @@ function Chart(container, type, data, options){
         },
         dotAttr:{
           "stroke-width":2,
-          "r":3,
+          "r":4,
           "opacity":1
         },
         dotHoverAttr:{
           "stroke-width":2,
-          "r":4,
+          "r":5,
           "opacity":1
         },
         colors:[
@@ -85,7 +89,10 @@ function Chart(container, type, data, options){
         ],
         animationType:"<",
         timing:500,
-        dotTiming:100
+        dotTiming:100,
+        legendAttr:{
+
+        }
     };
 
     extend(this.options, options);
@@ -103,6 +110,7 @@ function Chart(container, type, data, options){
     this.setType(type);
     this.setData(data);
     this.init();
+    return this;
 }
 
 Chart.prototype = {
@@ -239,10 +247,7 @@ Chart.prototype = {
         return h * (1-(y-min)/(max-min)) + this.options.margin[0];
     },
     getY: function(data,i){
-        return this.options.getY != undefined?this.options.getY(data, i):data[i]['y'];
-    },
-    getX: function(data,i){
-        return this.options.getX != undefined?this.options.getX(data, i):data[i]['x'];
+        return this.options.getY != undefined?this.options.getY(data, i):data[i];
     },
     getTickY: function(i){
         var max = this.getMax();
@@ -265,7 +270,7 @@ Chart.prototype = {
         return this.options.formatTickX != undefined?this.options.formatTickX(tickVal,i):tickVal;
     },
     getTipText: function(data, i){
-        return this.options.getTipText != undefined?this.options.getTipText(data,i):data[i]['y']+"";
+        return this.options.getTipText != undefined?this.options.getTipText(data,i):data[i]+"";
     },
     getThreshold: function(){
         return (this.options.threshold!=null)?this.getPixY(this.options.threshold):this.getPixY(this.getMin());
@@ -295,7 +300,8 @@ Render.prototype = {
             series:[], 
             dots: [],
             tips: [],
-            tipTexts:[]
+            tipTexts:[],
+            legends:[[],[]]
         };
     },
     clear:function(){
@@ -305,12 +311,16 @@ Render.prototype = {
         this.buildPlotsData();
     },
     create: function(){
+        this.createTitle();
+        this.createLegends();
         this.createAxes();
         this.createPlots();
         this.createDots();
     },
     draw: function(){
         var self = this;
+        self.drawTitle();
+        self.drawLegends();
         self.drawAxes();
         self.drawBackground();
         setTimeout(function(){
@@ -329,6 +339,41 @@ Render.prototype = {
                 var y =  self.context.getPixY(self.context.getY(data,j));
                 this.tdata.series[i][j] = [x, y];
             }
+        }
+    },
+    createTitle: function(){
+        var self = this;
+        var frame = self.context.getFrame();
+        var x =frame.x, y= 10;
+        var text = self.gc.text(x, y);
+        text.attr(self.options.titleAttr);
+        text.attr("text-anchor", "start");
+        text.attr("text", self.options.title);
+    },
+    createLegends: function(){
+        var self = this;
+        var frame = self.context.getFrame();
+        
+        var x =frame.x, y= frame.y - 20;
+        var margin = [10, 15];
+        for(var i=0;i<self.data.legends.length;i++){
+            var title = self.data.legends[i];
+            
+            if(i>0){
+                x = margin[1]+self.elements.legends[1][i-1].getBBox().x + self.elements.legends[1][i-1].getBBox().width;
+            }
+
+            var circle = self.gc.circle(x, y);
+            circle.attr("stroke", self.options.colors[i]);
+            circle.attr("fill", self.options.colors[i]);
+            circle.attr("r", "5");
+            var text = self.gc.text(x+margin[0], y);
+            text.attr(self.options.legendAttr);
+            text.attr("width", this.options.margin[3]);
+            text.attr("text-anchor", "start");
+            text.attr("text", title);
+            self.elements.legends[0].push(circle);
+            self.elements.legends[1].push(text);
         }
     },
     createAxes:function(){
@@ -427,8 +472,8 @@ Render.prototype = {
             for(var j = 0;j<data.length;j++){
                 var d = self.gc.circle(0, 0);
                 d.attr(self.options.dotAttr);
-                d.attr("stroke", self.options.bgAttr.fill);
-                d.attr("fill", self.options.colors[i]);
+                d.attr("stroke", self.options.colors[i]);
+                d.attr("fill", self.options.bgAttr.fill);
                 d.data("index",j);
                 d.data("data", self.data.series[i]);
                 d.mouseover(function(){
@@ -443,6 +488,12 @@ Render.prototype = {
             }
             self.elements.dots.push(dot);
         }
+    },
+    drawTitle: function(){
+
+    },
+    drawLegends: function(){
+
     },
     drawAxes: function(){
         var self = this;
