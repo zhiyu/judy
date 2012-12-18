@@ -74,12 +74,12 @@ function Chart(container, type, data, options){
         },
         dotAttr:{
           "stroke-width":2,
-          "r":4,
+          "r":3,
           "opacity":1
         },
         dotHoverAttr:{
           "stroke-width":2,
-          "r":5,
+          "r":4,
           "opacity":1
         },
         colors:[
