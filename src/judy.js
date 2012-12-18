@@ -55,7 +55,7 @@ function Chart(container, type, data, options){
           "opacity":0.8,
           "fill":"#f4f4f4",
           "stroke":"#666666",
-          "padding":5,
+          "padding":10,
           "textAttr":{
             "font-size":12,
             "fill":"#000000",
@@ -641,26 +641,24 @@ Render.prototype = {
         }
     },
     drawPlot: function(el, data, i, j){
-        data = data[i];
-        var self = this;
+        data          = data[i];
+        var self      = this;
         var threshold = self.context.getThreshold();
-
         var pathStart = el.data("pathStart")==undefined?"":el.data("pathStart");
-        var pathEnd = el.data("pathEnd")==undefined?"":el.data("pathEnd");
-        
+        var pathEnd   = el.data("pathEnd")==undefined?"":el.data("pathEnd");
         var x = data[j][0], y = data[j][1];
+
         if(j==0){
-            pathStart  = "M"+x+","+threshold;
-            pathEnd = "M"+x+","+y;
+            pathStart = "M"+x+","+threshold;
+            pathEnd   = "M"+x+","+y;
         }else{
-            var x1 = data[j-1][0], y1 = data[j-1][1];
-            var ix = (x - x1)/1.4;
-            pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
-            pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
+            var x1    = data[j-1][0], y1 = data[j-1][1];
+            var ix    = (x - x1)/1.5;
+            pathStart += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
+            pathEnd   += "S"+(x1+ix)+","+y+" "+x+","+y;   
         }
         el.data("pathStart", pathStart);
         el.data("pathEnd", pathEnd);
-
         if(j == data.length-1){
             el.attr("path", pathStart);
             el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
@@ -695,7 +693,7 @@ Render.prototype = {
     drawTips: function (x, y, els) {
         var index = els[0][1];
 
-        var angle  = 5, indent = 6, padding = this.options.tipAttr.padding;
+        var angle  = 5, indent = 6, xcorner = ycorner = 10 , padding = this.options.tipAttr.padding;
         var h = 2 * padding, w = h, maxWidth = 0; 
 
         x = Math.round(x) + indent;
@@ -726,21 +724,36 @@ Render.prototype = {
         if(hh < angle){
             angle = hh;
         }
+        if(hh < angle + ycorner){
+            xcorner = ycorner = hh-angle;
+        }
     
         var xa, tx, frame = this.context.getFrame();
 
         //check if tip's frame is out of bounds
         if(x+angle+w > frame.x+frame.width){
             w  = -w;
-            x -= 2*indent;
+            x  -= 2*indent;
             xa = x-angle;
             tx = xa + w + padding;
+            xcorner = -xcorner;  
         }else{
             xa = x+angle;
             tx = xa+padding;
         }
 
-        var pathString = "M"+x+","+y+"L"+xa+","+(y-angle)+"L"+xa+","+(y-hh)+"L"+(xa+w)+","+(y-hh)+"L"+(xa+w)+","+(y+hh)+"L"+xa+","+(y+hh)+"L"+xa+","+(y+angle)+"L"+x+","+y;
+        pathString = "M"+x+","+y+"L"+xa+","+(y-angle);
+        pathString += "L"+xa+","+(y-hh+ycorner);
+        pathString += "C"+xa+","+(y-hh)+" "+xa+","+(y-hh)+" "+(xa+xcorner)+","+(y-hh);
+        pathString += "L"+(xa+w-xcorner)+","+(y-hh);
+        pathString += "C"+(xa+w)+","+(y-hh)+" "+(xa+w)+","+(y-hh)+" "+(xa+w)+","+(y-hh+ycorner);
+        pathString += "L"+(xa+w)+","+(y+hh-ycorner);
+        pathString += "C"+(xa+w)+","+(y+hh)+" "+(xa+w)+","+(y+hh)+" "+(xa+w-xcorner)+","+(y+hh);
+        pathString += "L"+(xa+xcorner)+","+(y+hh);
+        pathString += "C"+xa+","+(y+hh)+" "+xa+","+(y+hh)+" "+xa+","+(y+hh-ycorner);
+        pathString += "L"+xa+","+(y+angle);
+        pathString += "L"+x+","+y;
+       
         path.attr("path",pathString);
 
         var hidden = this.isHidden(index);
