@@ -2,6 +2,16 @@ About
 -------------------------
 [judy](http://github.com/nodengine/judy) is a javascript charting library for web application development.
 
+Demos
+-------------------------
+[http://nodengine.com/judy/](http://nodengine.com/judy/)
+
+
+Contact
+-------------------------
+any question about judy, please feel free to contact zhengzhiyu@yeah.net
+
+
 License
 -------------------------
 Copyright ©2012  zhiyu zheng    all rights reserved.
@@ -13,11 +23,3 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Contact
--------------------------
-any question about judy, please feel free to contact zhengzhiyu@yeah.net
-
-Demos
--------------------------
-
-[http://nodengine.com/judy/](http://nodengine.com/judy/)
