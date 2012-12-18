@@ -63,7 +63,7 @@ function Chart(container, type, data, options){
             "text-anchor":"start"
           }
         },
-        getTipText:null,
+        getTip:null,
         lineAttr:{
           "stroke-width":3,
           "opacity":0.9       
@@ -74,12 +74,12 @@ function Chart(container, type, data, options){
         },
         dotAttr:{
           "stroke-width":2,
-          "r":4,
+          "r":3,
           "opacity":1
         },
         dotHoverAttr:{
           "stroke-width":2,
-          "r":5,
+          "r":4,
           "opacity":1
         },
         colors:[
@@ -269,8 +269,8 @@ Chart.prototype = {
         var tickVal = this.getTickX(i);
         return this.options.formatTickX != undefined?this.options.formatTickX(tickVal,i):tickVal;
     },
-    getTipText: function(data, i){
-        return this.options.getTipText != undefined?this.options.getTipText(data,i):data[i]+"";
+    getTip: function(data, i, j){
+        return this.options.getTip != undefined?this.options.getTip(data,i):this.data.legends[i]+":"+data[j];
     },
     getThreshold: function(){
         return (this.options.threshold!=null)?this.getPixY(this.options.threshold):this.getPixY(this.getMin());
@@ -294,6 +294,8 @@ Render.prototype = {
     },
     init: function(){
         //transformed data
+        this.clear();
+
         this.tdata = {};
         this.elements = {
             axes:[],
@@ -328,6 +330,9 @@ Render.prototype = {
             self.drawDots();   
         },self.options.timing);
     },
+    redraw: function(){
+        this.draw();
+    },
     buildPlotsData: function(){
         var self = this;
         this.tdata.series = [];
@@ -359,19 +364,40 @@ Render.prototype = {
         for(var i=0;i<self.data.legends.length;i++){
             var title = self.data.legends[i];
             
+            //compute x
             if(i>0){
                 x = margin[1]+self.elements.legends[1][i-1].getBBox().x + self.elements.legends[1][i-1].getBBox().width;
             }
 
+            //create plot for legend
             var circle = self.gc.circle(x, y);
             circle.attr("stroke", self.options.colors[i]);
             circle.attr("fill", self.options.colors[i]);
             circle.attr("r", "5");
+
+            //create text for legend
             var text = self.gc.text(x+margin[0], y);
             text.attr(self.options.legendAttr);
             text.attr("width", this.options.margin[3]);
             text.attr("text-anchor", "start");
+            text.attr("cursor", "pointer");
             text.attr("text", title);
+            text.data("i", i);
+
+            //bind click event to text element
+            text.click(function(){
+                var hidden = this.data("hidden");
+                if(hidden){
+                    self.elements.legends[0][this.data("i")].attr("opacity","1");
+                    this.data("hidden", false);
+                }else{
+                    self.elements.legends[0][this.data("i")].attr("opacity","0.4");
+                    this.data("hidden", true);
+                }
+                self.redraw();
+            });
+
+            //save elements
             self.elements.legends[0].push(circle);
             self.elements.legends[1].push(text);
         }
@@ -474,12 +500,13 @@ Render.prototype = {
                 d.attr(self.options.dotAttr);
                 d.attr("stroke", self.options.colors[i]);
                 d.attr("fill", self.options.bgAttr.fill);
-                d.data("index",j);
+                d.data("i",i);
+                d.data("j",j);
                 d.data("data", self.data.series[i]);
                 d.mouseover(function(){
                     this.animate(self.options.dotHoverAttr, self.options.dotTiming);
                     var box = this.getBBox();
-                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [self.context.getTipText(this.data("data"), this.data("index"))]);
+                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [[this.data("data"), this.data("i"), this.data("j")]]);
                 }).mouseout(function(){
                     this.animate(self.options.dotAttr, self.options.dotTiming);
                     self.clearTips();
@@ -598,10 +625,16 @@ Render.prototype = {
         for(var i=0;i<self.tdata.series.length;i++){
             var data = self.tdata.series[i];
             var serie = self.elements.series[i];
+            var hidden = self.isHidden(i);
             for(var j=0;j<data.length;j++){
                 var el = serie;
                 if(serie.length){
                    el = serie[j];
+                }
+                if(hidden){
+                    el.hide();
+                }else{
+                    el.show();
                 }
                 self.drawPlot(el, self.tdata.series, i, j);
             }
@@ -638,9 +671,15 @@ Render.prototype = {
         for(var i=0;i<self.tdata.series.length;i++){
             var dot = self.elements.dots[i];
             var data = self.tdata.series[i];
+            var hidden = self.isHidden(i);
             for(var j=0;j<data.length;j++){
-                 var d = dot[j];
-                 self.drawDot(d, self.tdata.series, i, j);
+                var el = dot[j];
+                if(hidden){
+                    el.hide();
+                }else{
+                    el.show();
+                }
+                self.drawDot(el, self.tdata.series, i, j);
             }   
         }
     },
@@ -654,6 +693,8 @@ Render.prototype = {
         el.animate({"cy":y}, self.options.timing, self.options.animationType);
     },
     drawTips: function (x, y, els) {
+        var index = els[0][1];
+
         var angle  = 5, indent = 6, padding = this.options.tipAttr.padding;
         var h = 2 * padding, w = h, maxWidth = 0; 
 
@@ -666,9 +707,10 @@ Render.prototype = {
         this.elements.tips.push(path);
 
         var texts = [];
-
         for(var i=0;i<els.length;i++){
-            var text = this.gc.text(0, y, els[i]);
+            var el   = els[i];
+            var tip  = this.context.getTip(el[0], el[1], el[2]);
+            var text = this.gc.text(0, y, tip);
             text.hide();
             text.attr(this.options.tipAttr.textAttr);
             this.elements.tipTexts.push(text);
@@ -698,13 +740,23 @@ Render.prototype = {
             tx = xa+padding;
         }
 
-        for(var i=0;i<texts.length;i++){
-            texts[i].attr("x",tx);
-            texts[i].show();
-        }
         var pathString = "M"+x+","+y+"L"+xa+","+(y-angle)+"L"+xa+","+(y-hh)+"L"+(xa+w)+","+(y-hh)+"L"+(xa+w)+","+(y+hh)+"L"+xa+","+(y+hh)+"L"+xa+","+(y+angle)+"L"+x+","+y;
         path.attr("path",pathString);
-        path.show();
+
+        var hidden = this.isHidden(index);
+        for(var i=0;i<texts.length;i++){
+            texts[i].attr("x",tx);
+
+            if(hidden)
+                texts[i].hide();
+            else
+                texts[i].show();
+        }
+
+        if(hidden)
+                path.hide();
+            else
+                path.show();
     },
     clearTips: function(){
         for(var i=0;i<this.elements.tips.length;i++){
@@ -746,6 +798,10 @@ Render.prototype = {
             }
         }
         return els;
+    },
+    isHidden: function(i){
+        var legend = this.elements.legends[1][i];
+        return legend.data("hidden") == undefined?false:legend.data("hidden");
     }
 }
 
