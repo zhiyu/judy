@@ -63,7 +63,7 @@ function Chart(container, type, data, options){
             "text-anchor":"start"
           }
         },
-        getTipText:null,
+        getTip:null,
         lineAttr:{
           "stroke-width":3,
           "opacity":0.9       
@@ -269,8 +269,8 @@ Chart.prototype = {
         var tickVal = this.getTickX(i);
         return this.options.formatTickX != undefined?this.options.formatTickX(tickVal,i):tickVal;
     },
-    getTipText: function(data, i){
-        return this.options.getTipText != undefined?this.options.getTipText(data,i):data[i]+"";
+    getTip: function(data, i, j){
+        return this.options.getTip != undefined?this.options.getTip(data,i):this.data.legends[i]+":"+data[j];
     },
     getThreshold: function(){
         return (this.options.threshold!=null)?this.getPixY(this.options.threshold):this.getPixY(this.getMin());
@@ -474,12 +474,13 @@ Render.prototype = {
                 d.attr(self.options.dotAttr);
                 d.attr("stroke", self.options.colors[i]);
                 d.attr("fill", self.options.bgAttr.fill);
-                d.data("index",j);
+                d.data("i",i);
+                d.data("j",j);
                 d.data("data", self.data.series[i]);
                 d.mouseover(function(){
                     this.animate(self.options.dotHoverAttr, self.options.dotTiming);
                     var box = this.getBBox();
-                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [self.context.getTipText(this.data("data"), this.data("index"))]);
+                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [self.context.getTip(this.data("data"), this.data("i"), this.data("j"))]);
                 }).mouseout(function(){
                     this.animate(self.options.dotAttr, self.options.dotTiming);
                     self.clearTips();
