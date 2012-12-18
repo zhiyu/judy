@@ -142,7 +142,7 @@ Chart.prototype = {
         return this.gc;
     },
     setType: function (type) {
-        this.type = type;
+        this.type  = type;
         eval("var Render = " + type + "Render");
         var render =  new Render();
         this.setRender(render);
@@ -151,16 +151,16 @@ Chart.prototype = {
         this.render = render;
     },
     setData: function (data) {
-        this.data = data;
+        this.data   = data;
     },
     setFrame: function(){
-        var size = this.getSize();
+        var size     = this.getSize();
         var frame    = {};
         frame.x      = this.options.margin[3];
         frame.y      = this.options.margin[0];
         frame.width  = size.width - this.options.margin[1] - this.options.margin[3];
         frame.height = size.height - this.options.margin[0] - this.options.margin[2];
-        this.frame  = frame;
+        this.frame   = frame;
     },
     getFrame: function(){
         return this.frame;
@@ -209,14 +209,12 @@ Chart.prototype = {
         for(var i=0;i<this.data.series.length;i++){
             for(var j=0;j<this.data.series[i].length;j++){
                 var y = this.getY(this.data.series[i],j);
-
                 if(i==0 && j==0){
                     min = y;
                 }else{
                     if(y < min)
                         min = y;
                 }
-
             }
         }
         this.min = min;
@@ -230,10 +228,7 @@ Chart.prototype = {
             position = 0;
         }
 
-        var frame = this.getFrame();
-        var w  = frame.width;
-        var iw = w/(count-1); 
-        var px = frame.x + i*iw;
+        var frame = this.getFrame(), w = frame.width, iw = w/(count-1), px = frame.x + i*iw;
         if(position == 1){
             iw = w/(count); 
             px = frame.x + i*iw + iw/2;
@@ -241,20 +236,17 @@ Chart.prototype = {
         return px;
     },
     getPixY: function(y){
-        var h = this.getSize().height - this.options.margin[0]-this.options.margin[2];
-        var max = this.getMax();
-        var min = this.getMin();
+        var h   = this.getSize().height - this.options.margin[0]-this.options.margin[2];
+        var max = this.getMax(), min = this.getMin();
         return h * (1-(y-min)/(max-min)) + this.options.margin[0];
     },
     getY: function(data,i){
         return this.options.getY != undefined?this.options.getY(data, i):data[i];
     },
     getTickY: function(i){
-        var max = this.getMax();
-        var min = this.getMin();
+        var max = this.getMax(), min = this.getMin();
         var interval = (max - min)/this.options.tickSize;
-        var tickVal = decimal(min + interval*i, this.options.tickFixed);
-
+        var tickVal  = decimal(min + interval*i, this.options.tickFixed);
         return this.options.getTickY != undefined?this.options.getTickY(tickVal,i):tickVal;
     },
     formatTickY: function(i){
@@ -366,9 +358,8 @@ Render.prototype = {
     createLegends: function(){
         var self = this;
         var frame = self.context.getFrame();
-        
-        var x =frame.x, y= frame.y - 20;
-        var margin = [10, 15];
+        var x =frame.x, y= frame.y - 20, margin = [10, 15];
+
         for(var i=0;i<self.data.legends.length;i++){
             var title = self.data.legends[i];
             
@@ -502,7 +493,7 @@ Render.prototype = {
         var self = this;
         for(var i=0;i<self.tdata.series.length;i++){
             var data = self.tdata.series[i];
-            var dot = new Array();
+            var dot  = new Array();
             for(var j = 0;j<data.length;j++){
                 var d = self.gc.circle(0, 0);
                 d.attr(self.options.dotAttr);
@@ -538,7 +529,7 @@ Render.prototype = {
          * YAxis
          */
         for(var i=0;i<this.elements.axes[0][1].length;i++){
-            var y = this.context.getPixY(this.context.getTickY(i));
+            var y    = this.context.getPixY(this.context.getTickY(i));
             var text = this.elements.axes[0][1][i][0];
             text.animate({"y":y}, self.options.timing);
             //text.attr({"y":y});
@@ -582,8 +573,8 @@ Render.prototype = {
         var minY  = this.context.getPixY(this.context.getMin());
         var left  = self.options.margin[3];
         var right = self.context.getSize().width - self.options.margin[1];
+        var bg    = this.gc.rect(0, 0, this.context.getSize().width, this.context.getSize().height);
         
-        var bg = this.gc.rect(0, 0, this.context.getSize().width, this.context.getSize().height);
         bg.toBack();
         bg.attr(self.options.bgAttr);
 
@@ -631,13 +622,13 @@ Render.prototype = {
     drawPlots: function(){
         var self = this;
         for(var i=0;i<self.tdata.series.length;i++){
-            var data = self.tdata.series[i];
-            var serie = self.elements.series[i];
+            var data   = self.tdata.series[i];
+            var serie  = self.elements.series[i];
             var hidden = self.isHidden(i);
             for(var j=0;j<data.length;j++){
                 var el = serie;
                 if(serie.length){
-                   el = serie[j];
+                    el = serie[j];
                 }
                 if(hidden){
                     el.hide();
@@ -675,8 +666,8 @@ Render.prototype = {
     drawDots: function(){
         var self = this;
         for(var i=0;i<self.tdata.series.length;i++){
-            var dot = self.elements.dots[i];
-            var data = self.tdata.series[i];
+            var dot    = self.elements.dots[i];
+            var data   = self.tdata.series[i];
             var hidden = self.isHidden(i);
             for(var j=0;j<data.length;j++){
                 var el = dot[j];
@@ -694,6 +685,7 @@ Render.prototype = {
         var self = this;
         var threshold = self.context.getThreshold();
         var x = data[j][0], y = data[j][1];
+
         el.attr("cx",x);
         el.attr("cy",threshold);
         el.animate({"cy":y}, self.options.timing, self.options.animationType);
@@ -701,7 +693,7 @@ Render.prototype = {
     drawTips: function (x, y, els) {
         var index = els[0][1];
 
-        var angle  = 5, indent = 6, xcorner = ycorner = 10 , padding = this.options.tipAttr.padding;
+        var angle = 5, indent = 6, xcorner = ycorner = 10 , padding = this.options.tipAttr.padding;
         var h = 2 * padding, w = h, maxWidth = 0; 
 
         x = Math.round(x) + indent;
@@ -761,19 +753,16 @@ Render.prototype = {
         pathString += "C"+xa+","+(y+hh)+" "+xa+","+(y+hh)+" "+xa+","+(y+hh-ycorner);
         pathString += "L"+xa+","+(y+angle);
         pathString += "L"+x+","+y;
-       
         path.attr("path",pathString);
 
         var hidden = this.isHidden(index);
         for(var i=0;i<texts.length;i++){
             texts[i].attr("x",tx);
-
             if(hidden)
                 texts[i].hide();
             else
                 texts[i].show();
         }
-
         if(hidden)
                 path.hide();
             else
@@ -851,15 +840,15 @@ function AreaRender(){
             pathStart  = "M"+x+","+threshold;
             pathEnd = "M"+x+","+y;
         }else{
-            var x0 = data[0][0], y0 = data[0][1];
-            var x1 = data[j-1][0], y1 = data[j-1][1];
-            var ix = (x - x1)/1.4;
-            pathStart  += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
-            pathEnd += "S"+(x1+ix)+","+y+" "+x+","+y;   
+            var x0    = data[0][0], y0 = data[0][1];
+            var x1    = data[j-1][0], y1 = data[j-1][1];
+            var ix    = (x - x1)/1.4;
+            pathStart += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
+            pathEnd   += "S"+(x1+ix)+","+y+" "+x+","+y;   
 
             if(j == data.length - 1){
-                pathStart  += "L"+x+","+threshold+"L"+x+","+threshold+"L"+x0+","+threshold+"Z"+x0+","+threshold;
-                pathEnd    += "L"+x+","+y+"L"+x+","+threshold+"L"+x0+","+threshold+"Z"+x0+","+y;
+                pathStart += "L"+x+","+threshold+"L"+x+","+threshold+"L"+x0+","+threshold+"Z"+x0+","+threshold;
+                pathEnd   += "L"+x+","+y+"L"+x+","+threshold+"L"+x0+","+threshold+"Z"+x0+","+y;
             }
         }
         el.data("pathStart", pathStart);
@@ -871,8 +860,7 @@ function AreaRender(){
             el.attr("path", pathStart);
             el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
         }
-    }
-    
+    } 
 }
 
 
@@ -881,9 +869,7 @@ function AreaRender(){
  */
 function ColumnRender(){
     extend(ColumnRender.prototype, Render.prototype);
-
     this.align = 1;
-    
     this.createPlots = function(){
         var self = this;
         for(var i=0;i<self.tdata.series.length;i++){
@@ -920,21 +906,18 @@ function ColumnRender(){
         el.data("i",i);
         el.data("j",j);
 
-        var self = this;
-        var base = self.context.getThreshold();
-        var w  = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
+        var self    = this;
+        var base    = self.context.getThreshold();
+        var w       = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
         var padding = w/5;
-        var iw = (w-2*padding)/self.tdata.series.length;
-        var ix = data[i][j][0] - w/2 + padding + iw*i, y = data[i][j][1];
-
-
+        var iw      = (w-2*padding)/self.tdata.series.length;
+        var ix      = data[i][j][0] - w/2 + padding + iw*i, y = data[i][j][1];
         var pathStart = "M"+ix+","+base+"L"+ix+","+base+"L"+(ix+iw)+","+base+"L"+(ix+iw)+","+base+"Z";
         var pathEnd   = "M"+ix+","+base+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+base+"Z";
 
         if(self.context.options.stacked){
             iw = w-2*padding;
             ix = data[i][j][0] - w/2 + padding;
-
             if(i>0){
                 var baseNew = base; 
                 for(var ii=0;ii<i;ii++){
@@ -943,7 +926,6 @@ function ColumnRender(){
                 }
                 base = baseNew;
             }
-
             pathStart = "M"+ix+","+base+"L"+ix+","+base+"L"+(ix+iw)+","+base+"L"+(ix+iw)+","+base+"Z";
             pathEnd   = "M"+ix+","+base+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+base+"Z";
         }
@@ -955,10 +937,10 @@ function ColumnRender(){
     this.drawDot = function(el, data, i, j){
         var self = this;
         var base = self.context.getThreshold();
-        var w  = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
+        var w    = (self.tdata.series[0][0][0] - self.options.margin[3])*2;
         var padding = w/5;
-        var iw = (w-2*padding)/self.tdata.series.length;
-        var ix = data[i][j][0] - w/2 + padding + iw*i + iw/2, y = data[i][j][1];
+        var iw   = (w-2*padding)/self.tdata.series.length;
+        var ix   = data[i][j][0] - w/2 + padding + iw*i + iw/2, y = data[i][j][1];
 
         if(self.options.stacked){
             iw = w-2*padding;
@@ -971,7 +953,6 @@ function ColumnRender(){
                 }
             }
         }
-
         var dot = self.elements.dots[i][j];
         dot.attr("cx",ix);
         dot.attr("cy",base);
