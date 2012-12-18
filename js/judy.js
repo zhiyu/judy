@@ -325,12 +325,20 @@ Render.prototype = {
         self.drawLegends();
         self.drawAxes();
         self.drawBackground();
-        setTimeout(function(){
+
+        if(!this.isRedraw){
+            setTimeout(function(){
+                self.drawPlots();   
+                self.drawDots();   
+            },self.options.timing);
+        }else{
             self.drawPlots();   
             self.drawDots();   
-        },self.options.timing);
+        }
+        
     },
     redraw: function(){
+        this.isRedraw = true;
         this.draw();
     },
     buildPlotsData: function(){
