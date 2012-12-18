@@ -54,6 +54,7 @@
         <h1>Area Charts</h1>
         <div class="subcategory">
           <div class="chart" id='chart1' style="height:400px;"/></div>
+          <div class="chart" id='chart101' style="height:400px;"/></div>
         </div>
         <h1>Column Charts</h1>
         <div class="subcategory">
@@ -76,7 +77,8 @@
         title:"Mobile Market",
         getMin:function(){
           return 0;
-        }
+        },
+        animationType:"bounce"
       } 
     );
     chart.draw();
@@ -90,10 +92,27 @@
         title:"Mobile Market",
         getMin:function(){
           return 0;
-        }
+        },
+        animationType:"bounce"
       } 
     );
     chart1.draw();
+
+    var chart101 = new Chart(document.getElementById("chart101"),"Area",{series:[
+                   [3,10,12,6,10,3,10,12,6,10,3,10],
+                   [4,9,15,5,19,4,9,15,15,5,19,4],
+                   [7,1,5,10,6,9,20,10,5,10,6,9]
+                  ],categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],legends:["iPhone","Android","Windows Mobile"]},
+      {
+        title:"Mobile Market",
+        getMin:function(){
+          return 0;
+        },
+        animationType:"bounce",
+        threshold:10
+      }
+    );
+    chart101.draw();
 
     var chart2 = new Chart(document.getElementById("chart2"),"Column",{series:[
                    [3,10,12,6,10,3,10,12,6,10,3,10],
