@@ -1,4 +1,5 @@
-function Chart(container, type, data, options){
+
+var Chart = function(container, type, data, options){
     this.options = {
         title:"",
         margin:[60,20,40,80],
