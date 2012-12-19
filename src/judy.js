@@ -102,7 +102,7 @@ Chart.prototype = {
         this.elements = {
             series:[],
             ticks:[[[],[]],[[],[]]], 
-            dots:[]     
+            markers:[]     
         }
         this.setContainer(container);
         this.setOptions(options);
@@ -143,7 +143,7 @@ Chart.prototype = {
         return this.gc;
     },
     setType: function (type) {
-        this.type  = type;
+        this.type = type;
         eval("var Render = " + type + "Render");
         this.setRender(new Render());
     },
@@ -216,13 +216,10 @@ Chart.prototype = {
     getMin: function(){
         return this.options.getMin != undefined?this.options.getMin():this.min;
     },
-    getPixX: function(count, i, position){
-        if(position==undefined){
-            position = 0;
-        }
-        var frame = this.getFrame(), w = frame.width, iw = w/(count-1), px = frame.x + i*iw;
-        if(position == 1){
-            iw = w/(count); 
+    getPixX: function(count, i, j){
+        var frame = this.getFrame(), iw = frame.width/(count-1), px = frame.x + i*iw;
+        if(j == 1){
+            iw = frame.width/(count); 
             px = frame.x + i*iw + iw/2;
         }
         return px;
@@ -278,8 +275,8 @@ Render.prototype = {
         this.elements = {
             axes:[],
             series:[], 
-            dots: [],
-            tips: [],
+            markers: [],
+            tooltips: [],
             tipTexts:[],
             legends:[[],[]]
         };
@@ -295,7 +292,7 @@ Render.prototype = {
         this.createLegends();
         this.createAxes();
         this.createPlots();
-        this.createDots();
+        this.createMarkers();
     },
     draw: function(){
         var self = this;
@@ -306,11 +303,11 @@ Render.prototype = {
         if(!this.isRedraw){
             setTimeout(function(){
                 self.drawPlots();   
-                self.drawDots();   
+                self.drawMarkers();   
             },self.options.timing);
         }else{
             self.drawPlots();   
-            self.drawDots();   
+            self.drawMarkers();   
         }
     },
     redraw: function(){
@@ -461,7 +458,7 @@ Render.prototype = {
             self.elements.series.push(path);
         }
     },
-    createDots:function(){
+    createMarkers:function(){
         var self = this;
         for(var i=0;i<self.tdata.series.length;i++){
             var data = self.tdata.series[i];
@@ -477,14 +474,14 @@ Render.prototype = {
                 d.mouseover(function(){
                     this.animate(self.options.dotHoverAttr, self.options.dotTiming);
                     var box = this.getBBox();
-                    self.drawTips((box.x+box.x2)/2, (box.y+box.y2)/2, [[this.data("data"), this.data("i"), this.data("j")]]);
+                    self.drawTooltips((box.x+box.x2)/2, (box.y+box.y2)/2, [[this.data("data"), this.data("i"), this.data("j")]]);
                 }).mouseout(function(){
                     this.animate(self.options.dotAttr, self.options.dotTiming);
-                    self.clearTips();
+                    self.clearTooltips();
                 });
                 dot.push(d);
             }
-            self.elements.dots.push(dot);
+            self.elements.markers.push(dot);
         }
     },
     drawTitle: function(){
@@ -561,9 +558,10 @@ Render.prototype = {
                     }
                 }
             }
+
+            self.clearTooltips();
             if(self.options.showTracker){
-                els = self.getDots(0, offsetX);
-                self.clearTips();
+                els = self.getMarkers(0, offsetX);
                 //draw tips
                 for(var i=0;i<els.length;i++){
                     for(var j = 0; j < els[i].events.length; j++) {
@@ -578,8 +576,6 @@ Render.prototype = {
                         //tracker.attr("path","M"+offsetX+","+self.options.margin[0]+"L"+offsetX+","+minY); 
                     }
                 }
-            }else{
-                self.clearTips();
             }
         });
 
@@ -626,10 +622,10 @@ Render.prototype = {
             el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
         }
     },
-    drawDots: function(){
+    drawMarkers: function(){
         var self = this;
         for(var i=0;i<self.tdata.series.length;i++){
-            var dot    = self.elements.dots[i];
+            var dot    = self.elements.markers[i];
             var data   = self.tdata.series[i];
             var hidden = self.isHidden(i);
             for(var j=0;j<data.length;j++){
@@ -639,18 +635,18 @@ Render.prototype = {
                 }else{
                     el.show();
                 }
-                self.drawDot(el, self.tdata.series, i, j);
+                self.drawMarker(el, self.tdata.series, i, j);
             }   
         }
     },
-    drawDot:function(el, data, i, j){
+    drawMarker:function(el, data, i, j){
         var self = this, data = data[i], x = data[j][0], y = data[j][1];
         var threshold = self.context.getThreshold();
         el.attr("cx",x);
         el.attr("cy",threshold);
         el.animate({"cy":y}, self.options.timing, self.options.animationType);
     },
-    drawTips: function (x, y, els) {
+    drawTooltips: function (x, y, els) {
         var index = els[0][1];
         var angle = 5, indent = 7, xcorner = ycorner = 10 , padding = this.options.tipAttr.padding;
         var h = 2 * padding, w = h, maxWidth = 0; 
@@ -660,7 +656,7 @@ Render.prototype = {
         var path = this.gc.path("");
         path.hide();
         path.attr(this.options.tipAttr);
-        this.elements.tips.push(path);
+        this.elements.tooltips.push(path);
 
         var texts = [];
         for(var i=0;i<els.length;i++){
@@ -669,8 +665,8 @@ Render.prototype = {
             var text = this.gc.text(0, y, tip);
             text.hide();
             text.attr(this.options.tipAttr.textAttr);
-            this.elements.tipTexts.push(text);
             texts.push(text);
+            this.elements.tipTexts.push(texts);
             h += text.getBBox().height;
             if(text.getBBox().width > maxWidth){
                 maxWidth = text.getBBox().width;
@@ -699,18 +695,18 @@ Render.prototype = {
             tx = xa+padding;
         }
 
-        pathString = "M"+x+","+y+"L"+xa+","+(y-angle);
-        pathString += "L"+xa+","+(y-hh+ycorner);
-        pathString += "C"+xa+","+(y-hh)+" "+xa+","+(y-hh)+" "+(xa+xcorner)+","+(y-hh);
-        pathString += "L"+(xa+w-xcorner)+","+(y-hh);
-        pathString += "C"+(xa+w)+","+(y-hh)+" "+(xa+w)+","+(y-hh)+" "+(xa+w)+","+(y-hh+ycorner);
-        pathString += "L"+(xa+w)+","+(y+hh-ycorner);
-        pathString += "C"+(xa+w)+","+(y+hh)+" "+(xa+w)+","+(y+hh)+" "+(xa+w-xcorner)+","+(y+hh);
-        pathString += "L"+(xa+xcorner)+","+(y+hh);
-        pathString += "C"+xa+","+(y+hh)+" "+xa+","+(y+hh)+" "+xa+","+(y+hh-ycorner);
-        pathString += "L"+xa+","+(y+angle);
-        pathString += "L"+x+","+y;
-        path.attr("path",pathString);
+        var p = "M"+x+","+y+"L"+xa+","+(y-angle);
+        p += "L"+xa+","+(y-hh+ycorner);
+        p += "C"+xa+","+(y-hh)+" "+xa+","+(y-hh)+" "+(xa+xcorner)+","+(y-hh);
+        p += "L"+(xa+w-xcorner)+","+(y-hh);
+        p += "C"+(xa+w)+","+(y-hh)+" "+(xa+w)+","+(y-hh)+" "+(xa+w)+","+(y-hh+ycorner);
+        p += "L"+(xa+w)+","+(y+hh-ycorner);
+        p += "C"+(xa+w)+","+(y+hh)+" "+(xa+w)+","+(y+hh)+" "+(xa+w-xcorner)+","+(y+hh);
+        p += "L"+(xa+xcorner)+","+(y+hh);
+        p += "C"+xa+","+(y+hh)+" "+xa+","+(y+hh)+" "+xa+","+(y+hh-ycorner);
+        p += "L"+xa+","+(y+angle);
+        p += "L"+x+","+y;
+        path.attr("path",p);
 
         var hidden = this.isHidden(index);
         for(var i=0;i<texts.length;i++){
@@ -721,42 +717,42 @@ Render.prototype = {
                 texts[i].show();
         }
         if(hidden)
-                path.hide();
-            else
-                path.show();
+            path.hide();
+        else
+            path.show();
     },
-    clearTips: function(){
-        for(var i=0;i<this.elements.tips.length;i++){
-            this.elements.tips[i].remove();
+    clearTooltips: function(){
+        for(var i=0;i<this.elements.tooltips.length;i++){
+            this.elements.tooltips[i].remove();
+            for(var j = 0; j< this.elements.tipTexts[i].length;j++){
+                this.elements.tipTexts[i][j].remove();
+            }
         }
-        for(var i=0;i<this.elements.tipTexts.length;i++){
-            this.elements.tipTexts[i].remove();
-        }
-        this.elements.tips.splice(0);
+        this.elements.tooltips.splice(0);
         this.elements.tipTexts.splice(0);
     },
-    getDots:function(type, pos1, pos2){
+    getMarkers:function(type, pos1, pos2){
         var els = [];
         //vertical
         if(type == 0){
-            for(var i=0;i<this.elements.dots.length;i++){
-                var dots = this.elements.dots[i];
-                for(var j=0;j<dots.length;j++){
-                    var el = dots[j];
+            for(var i=0;i<this.elements.markers.length;i++){
+                var markers = this.elements.markers[i];
+                for(var j=0;j<markers.length;j++){
+                    var el = markers[j];
                     var box = el.getBBox();
                     if(pos1 >= box.x && pos1 <= box.x2){
                         els.push(el);
                     }
                 }
             }
-        }else if(type == 1){
-        //horizontal
+        }
 
-        }else if(type == 3){
-            for(var i=0;i<this.elements.dots.length;i++){
-                var dots = this.elements.dots[i];
-                for(var j=0;j<dots.length;j++){
-                    var el = dots[j];
+        //point
+        if(type == 3){
+            for(var i=0;i<this.elements.markers.length;i++){
+                var markers = this.elements.markers[i];
+                for(var j=0;j<markers.length;j++){
+                    var el = markers[j];
                     var box = el.getBBox();
                     if(pos1 >= box.x && pos1 <= box.x2 && pos2 >= box.y && pos2 <= box.y2){
                         els.push(el);
@@ -841,14 +837,14 @@ function ColumnRender(){
 
     this.drawPlot = function(el, data, i, j){
         el.mouseover(function(){
-            var dot = self.elements.dots[this.data("i")][this.data("j")];
+            var dot = self.elements.markers[this.data("i")][this.data("j")];
             for(var e in dot.events){
                 if (dot.events[e].name == 'mouseover') {
                     dot.events[e].f.apply(dot);
                 }
             }
         }).mouseout(function(){
-            var dot = self.elements.dots[this.data("i")][this.data("j")];
+            var dot = self.elements.markers[this.data("i")][this.data("j")];
             for(var e in dot.events){
                 if (dot.events[e].name == 'mouseout') {
                     dot.events[e].f.apply(dot);
@@ -890,7 +886,7 @@ function ColumnRender(){
         el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
     }
     
-    this.drawDot = function(el, data, i, j){
+    this.drawMarker = function(el, data, i, j){
         var self = this;
         var frame = this.context.getFrame();
         var base = self.context.getThreshold();
@@ -910,7 +906,7 @@ function ColumnRender(){
                 }
             }
         }
-        var dot = self.elements.dots[i][j];
+        var dot = self.elements.markers[i][j];
         dot.attr("cx",ix);
         dot.attr("cy",base);
         dot.animate({"cy":y}, self.options.timing, self.options.animationType);
@@ -933,7 +929,9 @@ function extend(){
         if ( (options = arguments[i]) != null ) {
             for ( name in options ) {
                 src = target[name], copy = options[name];
-                if ( target === copy ) continue;
+                if ( target === copy ) {
+                    continue;
+                }
                 if ( deep && copy && ( this.isPlainObject(copy) || (copyIsArray = this.isArray(copy)) ) ) {
                     if ( copyIsArray ) {
                         copyIsArray = false, clone = src && this.isArray(src) ? src : [];
@@ -957,6 +955,8 @@ function decimal(val, position) {
     if (pos < 0) {
         pos = s.length, s += '.';
     }
-    while (s.length <= pos + position) s += '0';
+    while (s.length <= pos + position) {
+        s += '0'
+    }
     return s;
 }
