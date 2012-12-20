@@ -600,16 +600,16 @@ Render.prototype = {
             self.clearTooltips();
             if(self.options.showTracker){
                 els = self.getMarkers(0, offsetX);
-                //draw tips
-                for(var i=0;i<els.length;i++){
-                    for(var j = 0; j < els[i].events.length; j++) {
-                        if (els[i].events[j].name == 'mouseover') {
-                            els[i].events[j].f.apply(els[i]);
+                //draw tracker
+                if(offsetX >= frame.x && offsetX <= frame.x+frame.width && offsetY > frame.y){
+                    //draw tips
+                    for(var i=0;i<els.length;i++){
+                        for(var j = 0; j < els[i].events.length; j++) {
+                            if (els[i].events[j].name == 'mouseover') {
+                                els[i].events[j].f.apply(els[i]);
+                            }
                         }
                     }
-                }
-                //draw tracker
-                if(offsetX >= frame.x && offsetX <= frame.x+frame.width){
                     if(self.options.showTracker){
                         //tracker.attr("path","M"+offsetX+","+self.options.margin[0]+"L"+offsetX+","+minY); 
                     }
