@@ -266,7 +266,6 @@ Render.prototype = {
         this.gc      = this.context.getGC();
         this.init();
         this.build();
-        this.create();
         this.draw();
     },
     init: function(){
@@ -286,13 +285,26 @@ Render.prototype = {
         this.gc.clear();
     },
     build: function(){
-        this.buildPlotsData();
+        this.buildTitle();
+        this.buildLegends();
+        this.buildAxes();
+        this.buildPlots();
+        this.buildMarkers();
     },
-    create: function(){
+    buildTitle: function(){
         this.createTitle();
+    },
+    buildLegends: function(){
         this.createLegends();
+    },
+    buildAxes: function(){
         this.createAxes();
+    },
+    buildPlots: function(){
+        this.buildPlotsData();
         this.createPlots();
+    },
+    buildMarkers:function(){
         this.createMarkers();
     },
     draw: function(){
@@ -307,7 +319,9 @@ Render.prototype = {
                 self.drawMarkers();   
             },self.options.timing);
         }else{
-            self.drawPlots();   
+            self.buildPlots();  
+            self.drawPlots(); 
+            self.buildMarkers(); 
             self.drawMarkers();   
         }
     },
@@ -319,12 +333,16 @@ Render.prototype = {
         var self = this;
         this.tdata.series = [];
         for(var i=0;i<self.data.series.length;i++){
-            this.tdata.series[i] = [];
-            var data = self.data.series[i];
-            for(var j = 0;j<data.length;j++){
-                var x = self.context.getPixX(data.length, j, this.align);
-                var y =  self.context.getPixY(self.context.getY(data,j));
-                this.tdata.series[i][j] = [x, y];
+            var hidden = self.isHidden(i);
+            if(!hidden){
+                var serie = [];
+                this.tdata.series.push(serie);
+                var data = self.data.series[i];
+                for(var j = 0;j<data.length;j++){
+                    var x = self.context.getPixX(data.length, j, this.align);
+                    var y =  self.context.getPixY(self.context.getY(data,j));
+                    serie[j] = [x, y];
+                }
             }
         }
     },
@@ -451,16 +469,33 @@ Render.prototype = {
     },
     createPlots:function(){
         var self = this;
+
+        //clear plots
+        for(var i=0;i<self.elements.series.length;i++){
+            self.elements.series[i].remove();
+        }
+        self.elements.series.splice(0);
+
         for(var i=0;i<self.tdata.series.length;i++){
             var data = self.tdata.series[i];
             var path = self.gc.path("");
             path.attr(self.options.lineAttr);
-            path.attr("stroke", self.options.colors[i]);
+            path.attr("stroke", self.options.colors[self.getIndex(i)]);
             self.elements.series.push(path);
         }
     },
     createMarkers:function(){
         var self = this;
+
+        //clear markers
+        for(var i=0;i<self.elements.markers.length;i++){
+            var markers = self.elements.markers[i]
+            for(var j=0;j<markers.length;j++){
+                markers[j].remove();
+            }
+        }
+        self.elements.markers.splice(0);
+
         for(var i=0;i<self.tdata.series.length;i++){
             var data = self.tdata.series[i];
             var dot  = new Array();
@@ -468,7 +503,7 @@ Render.prototype = {
                 var d = self.gc.circle(0, 0);
                 d.attr(self.options.dotAttr);
                 d.attr("stroke", self.options.bgAttr.fill);
-                d.attr("fill", self.options.colors[i]);
+                d.attr("fill", self.options.colors[self.getIndex(i)]);
                 d.data("i",i);
                 d.data("j",j);
                 d.data("data", self.data.series[i]);
@@ -553,9 +588,11 @@ Render.prototype = {
             var offsetX = e.offsetX?e.offsetX:e.layerX;
             var offsetY = e.offsetY?e.offsetY:e.layerY;
             for(var i=0;i<els.length;i++){
-                for(var j = 0; j < els[i].events.length; j++) {
-                    if (els[i].events[j].name == 'mouseout') {
-                        els[i].events[j].f.apply(els[i]);
+                if (els[i].events != undefined) {
+                    for(var j = 0;j < els[i].events.length; j++) {
+                        if (els[i].events[j].name == 'mouseout') {
+                            els[i].events[j].f.apply(els[i]);
+                        }
                     }
                 }
             }
@@ -586,16 +623,10 @@ Render.prototype = {
         for(var i=0;i<self.tdata.series.length;i++){
             var data   = self.tdata.series[i];
             var serie  = self.elements.series[i];
-            var hidden = self.isHidden(i);
             for(var j=0;j<data.length;j++){
                 var el = serie;
                 if(serie.length){
                     el = serie[j];
-                }
-                if(hidden){
-                    el.hide();
-                }else{
-                    el.show();
                 }
                 self.drawPlot(el, self.tdata.series, i, j);
             }
@@ -628,14 +659,8 @@ Render.prototype = {
         for(var i=0;i<self.tdata.series.length;i++){
             var dot    = self.elements.markers[i];
             var data   = self.tdata.series[i];
-            var hidden = self.isHidden(i);
             for(var j=0;j<data.length;j++){
                 var el = dot[j];
-                if(hidden){
-                    el.hide();
-                }else{
-                    el.show();
-                }
                 self.drawMarker(el, self.tdata.series, i, j);
             }   
         }
@@ -655,7 +680,6 @@ Render.prototype = {
         y = Math.round(y);
 
         var path = this.gc.path("");
-        path.hide();
         path.attr(this.options.tipAttr);
         this.elements.tooltips.push(path);
 
@@ -664,7 +688,6 @@ Render.prototype = {
             var el   = els[i];
             var tip  = this.context.getTip(el[0], el[1], el[2]);
             var text = this.gc.text(0, y, tip);
-            text.hide();
             text.attr(this.options.tipAttr.textAttr);
             texts.push(text);
             this.elements.tipTexts.push(texts);
@@ -709,18 +732,9 @@ Render.prototype = {
         p += "L"+x+","+y;
         path.attr("path",p);
 
-        var hidden = this.isHidden(index);
         for(var i=0;i<texts.length;i++){
             texts[i].attr("x",tx);
-            if(hidden)
-                texts[i].hide();
-            else
-                texts[i].show();
         }
-        if(hidden)
-            path.hide();
-        else
-            path.show();
     },
     clearTooltips: function(){
         for(var i=0;i<this.elements.tooltips.length;i++){
@@ -766,6 +780,20 @@ Render.prototype = {
     isHidden: function(i){
         var legend = this.elements.legends[1][i];
         return legend.data("hidden") == undefined?false:legend.data("hidden");
+    },
+    getIndex: function(index){
+        var pos = -1;
+        for(var i=0;i<this.elements.legends[1].length;i++){
+            var legend = this.elements.legends[1][i];
+            if(!legend.data("hidden")){
+                pos ++;
+            }
+            if(pos == index){
+                pos = i;
+                break;
+            }
+        }
+        return pos;
     }
 }
 
@@ -824,13 +852,23 @@ function ColumnRender(){
     this.align = 1;
     this.createPlots = function(){
         var self = this;
+
+        //clear markers
+        for(var i=0;i<self.elements.series.length;i++){
+            var serie = self.elements.series[i]
+            for(var j=0;j<serie.length;j++){
+                serie[j].remove();
+            }
+        }
+        self.elements.series.splice(0);
+
         for(var i=0;i<self.tdata.series.length;i++){
             self.elements.series[i] = [];
             var data = self.tdata.series[i];
             for(var j=0;j<data.length;j++){
                 var path = self.gc.path("");
                 path.attr(self.options.lineAttr);
-                path.attr("stroke", self.options.colors[i]);
+                path.attr("stroke", self.options.colors[self.getIndex(i)]);
                 self.elements.series[i].push(path);
             }
         }
