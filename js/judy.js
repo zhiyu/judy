@@ -506,11 +506,11 @@ Render.prototype = {
                 d.attr("fill", self.options.colors[self.getIndex(i)]);
                 d.data("i",i);
                 d.data("j",j);
-                d.data("data", self.data.series[i]);
+                d.data("data", self.data.series[self.getIndex(i)]);
                 d.mouseover(function(){
                     this.animate(self.options.dotHoverAttr, self.options.dotTiming);
                     var box = this.getBBox();
-                    self.drawTooltips((box.x+box.x2)/2, (box.y+box.y2)/2, [[this.data("data"), this.data("i"), this.data("j")]]);
+                    self.drawTooltips((box.x+box.x2)/2, (box.y+box.y2)/2, [[this.data("data"), self.getIndex(this.data("i")), this.data("j")]]);
                 }).mouseout(function(){
                     this.animate(self.options.dotAttr, self.options.dotTiming);
                     self.clearTooltips();
@@ -600,16 +600,16 @@ Render.prototype = {
             self.clearTooltips();
             if(self.options.showTracker){
                 els = self.getMarkers(0, offsetX);
-                //draw tips
-                for(var i=0;i<els.length;i++){
-                    for(var j = 0; j < els[i].events.length; j++) {
-                        if (els[i].events[j].name == 'mouseover') {
-                            els[i].events[j].f.apply(els[i]);
+                //draw tracker
+                if(offsetX >= frame.x && offsetX <= frame.x+frame.width && offsetY > frame.y){
+                    //draw tips
+                    for(var i=0;i<els.length;i++){
+                        for(var j = 0; j < els[i].events.length; j++) {
+                            if (els[i].events[j].name == 'mouseover') {
+                                els[i].events[j].f.apply(els[i]);
+                            }
                         }
                     }
-                }
-                //draw tracker
-                if(offsetX >= frame.x && offsetX <= frame.x+frame.width){
                     if(self.options.showTracker){
                         //tracker.attr("path","M"+offsetX+","+self.options.margin[0]+"L"+offsetX+","+minY); 
                     }
