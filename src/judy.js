@@ -506,11 +506,11 @@ Render.prototype = {
                 d.attr("fill", self.options.colors[self.getIndex(i)]);
                 d.data("i",i);
                 d.data("j",j);
-                d.data("data", self.data.series[i]);
+                d.data("data", self.data.series[self.getIndex(i)]);
                 d.mouseover(function(){
                     this.animate(self.options.dotHoverAttr, self.options.dotTiming);
                     var box = this.getBBox();
-                    self.drawTooltips((box.x+box.x2)/2, (box.y+box.y2)/2, [[this.data("data"), this.data("i"), this.data("j")]]);
+                    self.drawTooltips((box.x+box.x2)/2, (box.y+box.y2)/2, [[this.data("data"), self.getIndex(this.data("i")), this.data("j")]]);
                 }).mouseout(function(){
                     this.animate(self.options.dotAttr, self.options.dotTiming);
                     self.clearTooltips();
