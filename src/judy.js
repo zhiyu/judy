@@ -114,7 +114,6 @@ Chart.prototype = {
         this.setMax();
         this.setMin();
         this.gc = Raphael(this.container, this.options.width, this.options.height);
-
         this.setRender(new Render(this));
         return this;
     },
