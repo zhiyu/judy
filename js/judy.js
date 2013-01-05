@@ -33,7 +33,7 @@ var Chart = function(container, type, data, options){
         },
         bgAttr:{
            fill:"#ffffff",
-           "stroke-width":0
+           "stroke":"none"
         },
         trackerAttr:{
             "stroke-width":1,
@@ -91,6 +91,10 @@ var Chart = function(container, type, data, options){
           "r":5,
           "opacity":1
         },
+        columnAttr:{
+          "stroke-width":1,
+          "opacity":0.9       
+        },
         legendAttr:{
         }
     };
@@ -114,7 +118,6 @@ Chart.prototype = {
         this.setMax();
         this.setMin();
         this.gc = Raphael(this.container, this.options.width, this.options.height);
-
         this.setRender(new Render(this));
         return this;
     },
@@ -297,12 +300,14 @@ Render.prototype = {
     getNumberOfType : function(i){
         if(this.context.type)
             return this.tdata.series.length;
-
-        var type = this.data.types[this.getIndex(i)];
+        
+        var index = this.getIndex(i);
+        var type = this.getType(index);
         var count = 0;
-        for(var i in this.renders){
-            if(i===type)
+        for(var i=0; i< this.data.types.length;i++){
+            if(this.data.types[i]==type && !this.isHidden(i)){
                 count++;
+            }
         }
         return count;
     },
@@ -312,7 +317,7 @@ Render.prototype = {
         var tp    = this.getType(index);
 
         for(var i = 0; i< index; i++){
-            if(this.getType(i) == tp){
+            if(this.getType(i) == tp && !this.isHidden(i)){
                 count++;
             }
         }
@@ -939,7 +944,7 @@ function ColumnRender(render){
         var data = self.tdata.series[i];
         for(var j=0;j<data.length;j++){
             var path = self.gc.path("");
-            path.attr(self.options.lineAttr);
+            path.attr(self.options.columnAttr);
             path.attr("stroke", self.options.colors[self.getIndex(i)]);
             self.elements.series[i].push(path);
         }
