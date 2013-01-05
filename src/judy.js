@@ -33,7 +33,7 @@ var Chart = function(container, type, data, options){
         },
         bgAttr:{
            fill:"#ffffff",
-           "stroke-width":0
+           "stroke":"none"
         },
         trackerAttr:{
             "stroke-width":1,
