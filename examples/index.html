@@ -218,6 +218,38 @@ Source Code :<br/><br/>
   
 </code></pre>            
         </div>
+
+        <h1>Combination Charts</h1>
+        <div class="subcategory">
+          <div class="chart" id='chart3'  style="height:400px;"/></div>
+Source Code :<br/><br/>        
+<pre><code>
+  var chart = new Chart(document.getElementById("chart"),null,
+        {
+          series:[
+           [3,10,12,6,10,3,10,12,6,10,3,10],
+           [4,9,15,5,19,4,9,15,15,5,19,4],
+           [7,1,5,10,6,9,20,10,5,10,6,9]
+          ],
+          categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+          legends:["iPhone","Android","Windows Mobile"],
+          types:['Area', 'Column', 'Line']
+        },
+        {
+          title:"Mobile Market",
+          getMin:function(){
+            return 0;
+          },
+          animationType:"bounce"
+        } 
+  );
+
+  chart.draw();
+  
+</code></pre>     
+
+        </div>
+
       </div >
       </div>
   </body>
@@ -329,5 +361,27 @@ Source Code :<br/><br/>
     );
     chart202.draw();
 
-    hljs.initHighlightingOnLoad();
+    var chart3 = new Chart(document.getElementById("chart3"),null,
+        {
+          series:[
+           [3,10,12,6,10,3,10,12,6,10,3,10],
+           [4,9,15,5,19,4,9,15,15,5,19,4],
+           [7,1,5,10,6,9,20,10,5,10,6,9]
+          ],
+          categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+          legends:["iPhone","Android","Windows Mobile"],
+          types:['Area', 'Column', 'Line']
+        },
+        {
+          title:"Mobile Market",
+          getMin:function(){
+            return 0;
+          },
+          animationType:"bounce"
+        } 
+  );
+
+  chart3.draw();
+
+  hljs.initHighlightingOnLoad();
 </script>

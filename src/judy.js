@@ -114,6 +114,8 @@ Chart.prototype = {
         this.setMax();
         this.setMin();
         this.gc = Raphael(this.container, this.options.width, this.options.height);
+
+        this.setRender(new Render(this));
         return this;
     },
     setContainer: function(container){
@@ -129,7 +131,7 @@ Chart.prototype = {
         }
     },
     draw: function(){
-        this.render.run(this);
+        this.render.run();
     },
     setSize: function (size) {
         this.size = size;
@@ -145,8 +147,6 @@ Chart.prototype = {
     },
     setType: function (type) {
         this.type = type;
-        eval("var Render = " + type + "Render");
-        this.setRender(new Render());
     },
     setRender: function (render) {
         this.render = render;
@@ -217,9 +217,9 @@ Chart.prototype = {
     getMin: function(){
         return this.options.getMin != undefined?this.options.getMin():this.min;
     },
-    getPixX: function(count, i, j){
+    getPixX: function(count, i, align){
         var frame = this.getFrame(), iw = frame.width/(count-1), px = frame.x + i*iw;
-        if(j == 1){
+        if(align == 1){
             iw = frame.width/(count); 
             px = frame.x + i*iw + iw/2;
         }
@@ -257,32 +257,79 @@ Chart.prototype = {
 /*
  * Render Prototype
  */
-function Render(){}
+function Render(context){
+    this.context = context;
+    this.data    = this.context.data;
+    this.options = this.context.options;
+    this.gc      = this.context.getGC();
+    
+    //this.clear();
+    this.tdata = {};
+    this.elements = {
+        axes:[],
+        series:[], 
+        markers: [],
+        tooltips: [],
+        tipTexts:[],
+        legends:[[],[]]
+    };
+
+    this.renderNames = ['Line','Area', 'Column'];
+    this.renders = {};
+    for(var i in this.renderNames){
+        var renderName = this.renderNames[i];
+        eval("var RenderName = " + renderName + "Render");
+        this.renders[renderName] = new RenderName(this);
+    }
+}
+
 Render.prototype = {
-    run: function(context){
-        this.context = context;
-        this.data    = this.context.data;
-        this.options = this.context.options;
-        this.gc      = this.context.getGC();
-        this.init();
+    run: function(context){ 
         this.build();
         this.draw();
     },
-    init: function(){
-        //transformed data
-        this.clear();
-        this.tdata = {};
-        this.elements = {
-            axes:[],
-            series:[], 
-            markers: [],
-            tooltips: [],
-            tipTexts:[],
-            legends:[[],[]]
-        };
-    },
     clear:function(){
         this.gc.clear();
+    },
+    getType:function (i){
+        return this.context.type?this.context.type:this.data.types[i];
+    },
+    getNumberOfType : function(i){
+        if(this.context.type)
+            return this.tdata.series.length;
+
+        var type = this.data.types[this.getIndex(i)];
+        var count = 0;
+        for(var i in this.renders){
+            if(i===type)
+                count++;
+        }
+        return count;
+    },
+    getIndexOfTypes : function(index){
+        var count = 0;
+        var index = this.getIndex(index);
+        var tp    = this.getType(index);
+
+        for(var i = 0; i< index; i++){
+            if(this.getType(i) == tp){
+                count++;
+            }
+        }
+        return count;
+    },
+    getAlign:function (){
+        var self = this;
+        if(this.context.type){
+            return this.renders[this.context.type].align;
+        }else{
+            for(var i=0;i<self.data.types.length;i++){
+                if(this.renders[self.data.types[i]].align == 1){
+                    return 1;
+                }
+            }
+        }
+        return 0;
     },
     build: function(){
         this.buildTitle();
@@ -302,6 +349,7 @@ Render.prototype = {
     },
     buildPlots: function(){
         this.buildPlotsData();
+        this.removePlots();
         this.createPlots();
     },
     buildMarkers:function(){
@@ -332,6 +380,7 @@ Render.prototype = {
     buildPlotsData: function(){
         var self = this;
         this.tdata.series = [];
+
         for(var i=0;i<self.data.series.length;i++){
             var hidden = self.isHidden(i);
             if(!hidden){
@@ -339,7 +388,7 @@ Render.prototype = {
                 this.tdata.series.push(serie);
                 var data = self.data.series[i];
                 for(var j = 0;j<data.length;j++){
-                    var x = self.context.getPixX(data.length, j, this.align);
+                    var x = self.context.getPixX(data.length, j, this.getAlign());
                     var y =  self.context.getPixY(self.context.getY(data,j));
                     serie[j] = [x, y];
                 }
@@ -468,21 +517,25 @@ Render.prototype = {
         }
     },
     createPlots:function(){
+        //create plots
+        for(var i=0;i<this.tdata.series.length;i++){
+            this.renders[this.getType(this.getIndex(i))].createPlot(i);
+        }
+    },
+    removePlots:function(){
         var self = this;
-
         //clear plots
         for(var i=0;i<self.elements.series.length;i++){
-            self.elements.series[i].remove();
+            var serie = self.elements.series[i];
+            if(serie.constructor == Array){
+                for(var j=0;j<serie.length;j++){
+                    serie[j].remove();
+                }
+            }else{
+                serie.remove();
+            }
         }
         self.elements.series.splice(0);
-
-        for(var i=0;i<self.tdata.series.length;i++){
-            var data = self.tdata.series[i];
-            var path = self.gc.path("");
-            path.attr(self.options.lineAttr);
-            path.attr("stroke", self.options.colors[self.getIndex(i)]);
-            self.elements.series.push(path);
-        }
     },
     createMarkers:function(){
         var self = this;
@@ -551,7 +604,7 @@ Render.prototype = {
 
         //XAxis
         for(var i=0;i<this.data.categories.length;i++){
-            var x = this.context.getPixX(this.data.categories.length, i, this.align);
+            var x = this.context.getPixX(this.data.categories.length, i, this.getAlign());
 
             var text = this.elements.axes[1][1][i][0];
             text.animate({"x":x}, self.options.timing);
@@ -628,30 +681,8 @@ Render.prototype = {
                 if(serie.length){
                     el = serie[j];
                 }
-                self.drawPlot(el, self.tdata.series, i, j);
+                this.renders[this.getType(this.getIndex(i))].drawPlot(el, self.tdata.series, i, j);
             }
-        }
-    },
-    drawPlot: function(el, data, i, j){
-        var self = this, data = data[i], x = data[j][0], y = data[j][1];
-        var threshold = self.context.getThreshold();
-        var pathStart = el.data("pathStart")==undefined?"":el.data("pathStart");
-        var pathEnd   = el.data("pathEnd")==undefined?"":el.data("pathEnd");
-
-        if(j==0){
-            pathStart = "M"+x+","+threshold;
-            pathEnd   = "M"+x+","+y;
-        }else{
-            var x1    = data[j-1][0], y1 = data[j-1][1];
-            var ix    = (x - x1)/1.5;
-            pathStart += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
-            pathEnd   += "S"+(x1+ix)+","+y+" "+x+","+y;   
-        }
-        el.data("pathStart", pathStart);
-        el.data("pathEnd", pathEnd);
-        if(j == data.length-1){
-            el.attr("path", pathStart);
-            el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
         }
     },
     drawMarkers: function(){
@@ -661,16 +692,9 @@ Render.prototype = {
             var data   = self.tdata.series[i];
             for(var j=0;j<data.length;j++){
                 var el = dot[j];
-                self.drawMarker(el, self.tdata.series, i, j);
-            }   
+                 this.renders[this.getType(this.getIndex(i))].drawMarker(el, self.tdata.series, i, j);
+            } 
         }
-    },
-    drawMarker:function(el, data, i, j){
-        var self = this, data = data[i], x = data[j][0], y = data[j][1];
-        var threshold = self.context.getThreshold();
-        el.attr("cx",x);
-        el.attr("cy",threshold);
-        el.animate({"cy":y}, self.options.timing, self.options.animationType);
     },
     drawTooltips: function (x, y, els) {
         var index = els[0][1];
@@ -800,15 +824,55 @@ Render.prototype = {
 /*
  * Line Chart 
  */
-function LineRender(){
-    extend(LineRender.prototype, Render.prototype);
+function LineRender(render){
+    extend(this, render);
+    
+    this.drawPlot = function(el, data, i, j){
+        var self = this, data = data[i], x = data[j][0], y = data[j][1];
+        var threshold = self.context.getThreshold();
+        var pathStart = el.data("pathStart")==undefined?"":el.data("pathStart");
+        var pathEnd   = el.data("pathEnd")==undefined?"":el.data("pathEnd");
+
+        if(j==0){
+            pathStart = "M"+x+","+threshold;
+            pathEnd   = "M"+x+","+y;
+        }else{
+            var x1    = data[j-1][0], y1 = data[j-1][1];
+            var ix    = (x - x1)/1.5;
+            pathStart += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
+            pathEnd   += "S"+(x1+ix)+","+y+" "+x+","+y;   
+        }
+        el.data("pathStart", pathStart);
+        el.data("pathEnd", pathEnd);
+        if(j == data.length-1){
+            el.attr("path", pathStart);
+            el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
+        }
+    }
+
+    this.createPlot = function(i){
+        var self = this;
+        var data = self.tdata.series[i];
+        var path = self.gc.path("");
+        path.attr(self.options.lineAttr);
+        path.attr("stroke", self.options.colors[self.getIndex(i)]);
+        self.elements.series.push(path);
+    }
+
+    this.drawMarker = function(el, data, i, j){
+        var self = this, data = data[i], x = data[j][0], y = data[j][1];
+        var threshold = self.context.getThreshold();
+        el.attr("cx",x);
+        el.attr("cy",threshold);
+        el.animate({"cy":y}, self.options.timing, self.options.animationType);
+    }
 }
 
 /*
  * Area Chart 
  */
-function AreaRender(){
-    extend(AreaRender.prototype, Render.prototype);
+function AreaRender(render){
+    extend(this, render);
 
     this.drawPlot = function(el, data, i, j){
         data = data[i];
@@ -841,36 +905,43 @@ function AreaRender(){
             el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
         }
     } 
+
+    this.createPlot = function(i){
+        var self = this;
+        var data = self.tdata.series[i];
+        var path = self.gc.path("");
+        path.attr(self.options.lineAttr);
+        path.attr("stroke", self.options.colors[self.getIndex(i)]);
+        self.elements.series.push(path);
+    }
+
+    this.drawMarker = function(el, data, i, j){
+        var self = this, data = data[i], x = data[j][0], y = data[j][1];
+        var threshold = self.context.getThreshold();
+        el.attr("cx",x);
+        el.attr("cy",threshold);
+        el.animate({"cy":y}, self.options.timing, self.options.animationType);
+    }
 }
 
 
 /*
  * Column Chart 
  */
-function ColumnRender(){
-    extend(ColumnRender.prototype, Render.prototype);
+function ColumnRender(render){
+    extend(this, render);
+    
     this.align = 1;
-    this.createPlots = function(){
+
+    this.createPlot = function(i){
         var self = this;
-
-        //clear markers
-        for(var i=0;i<self.elements.series.length;i++){
-            var serie = self.elements.series[i]
-            for(var j=0;j<serie.length;j++){
-                serie[j].remove();
-            }
-        }
-        self.elements.series.splice(0);
-
-        for(var i=0;i<self.tdata.series.length;i++){
-            self.elements.series[i] = [];
-            var data = self.tdata.series[i];
-            for(var j=0;j<data.length;j++){
-                var path = self.gc.path("");
-                path.attr(self.options.lineAttr);
-                path.attr("stroke", self.options.colors[self.getIndex(i)]);
-                self.elements.series[i].push(path);
-            }
+        self.elements.series[i] = [];
+        var data = self.tdata.series[i];
+        for(var j=0;j<data.length;j++){
+            var path = self.gc.path("");
+            path.attr(self.options.lineAttr);
+            path.attr("stroke", self.options.colors[self.getIndex(i)]);
+            self.elements.series[i].push(path);
         }
     }
 
@@ -896,13 +967,16 @@ function ColumnRender(){
         el.data("i",i);
         el.data("j",j);
 
-        var self    = this;
-        var frame   = this.context.getFrame();
-        var base    = self.context.getThreshold();
-        var w       = (self.tdata.series[0][0][0] - frame.x)*2;
-        var padding = w/5;
-        var iw      = (w-2*padding)/self.tdata.series.length;
-        var ix      = data[i][j][0] - w/2 + padding + iw*i, y = data[i][j][1];
+        var self      = this;
+        var frame     = this.context.getFrame();
+        var base      = self.context.getThreshold();
+        var w         = (self.tdata.series[0][0][0] - frame.x)*2;
+
+        var padding   = w/5;
+        var num       = self.getNumberOfType(i);
+        var index     = self.getIndexOfTypes(i)
+        var iw        = (w-2*padding)/num;
+        var ix        = data[i][j][0] - w/2 + padding + iw*index, y = data[i][j][1];
         var pathStart = "M"+ix+","+base+"L"+ix+","+base+"L"+(ix+iw)+","+base+"L"+(ix+iw)+","+base+"Z";
         var pathEnd   = "M"+ix+","+base+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+base+"Z";
 
@@ -931,8 +1005,11 @@ function ColumnRender(){
         var base = self.context.getThreshold();
         var w    = (self.tdata.series[0][0][0] - frame.x)*2;
         var padding = w/5;
-        var iw   = (w-2*padding)/self.tdata.series.length;
-        var ix   = data[i][j][0] - w/2 + padding + iw*i + iw/2, y = data[i][j][1];
+
+        var num       = self.getNumberOfType(i);
+        var index     = self.getIndexOfTypes(i)
+        var iw   = (w-2*padding)/num;
+        var ix   = data[i][j][0] - w/2 + padding + iw*index + iw/2, y = data[i][j][1];
 
         if(self.options.stacked){
             iw = w-2*padding;
