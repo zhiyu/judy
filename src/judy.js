@@ -32,7 +32,7 @@ var Chart = function(container, type, data, options){
             "font-size":14
         },
         bgAttr:{
-           fill:"#ffffff",
+           fill:"transparent",
            "stroke":"none"
         },
         trackerAttr:{
@@ -43,12 +43,12 @@ var Chart = function(container, type, data, options){
         gridXAttr:{
           "stroke-width":1,
           "opacity":0.1,
-          fill:"#666666",
+          "fill":"#666666",
         },
         gridYAttr:{
           "stroke-width":1,
           "opacity":0.1,
-          fill:"#666666",
+          "fill":"#666666",
         },
         tickYAttr:{
           "font-size":12,
@@ -74,22 +74,24 @@ var Chart = function(container, type, data, options){
           }
         },
         lineAttr:{
-          "stroke-width":3,
+          "stroke-width":5,
           "opacity":0.9       
         },
         lineHoverAttr:{
-          "stroke-width":4,
+          "stroke-width":5,
           "opacity":0.9       
         },
         dotAttr:{
           "stroke-width":2,
-          "r":4,
-          "opacity":1
+          "r":5,
+          "opacity":1,
+          "stroke":"#fff"
         },
         dotHoverAttr:{
           "stroke-width":2,
-          "r":5,
-          "opacity":1
+          "r":4,
+          "opacity":1,
+          "stroke":"#fff"
         },
         columnAttr:{
           "stroke-width":1,
@@ -559,9 +561,11 @@ Render.prototype = {
             var dot  = new Array();
             for(var j = 0;j<data.length;j++){
                 var d = self.gc.circle(0, 0);
-                d.attr(self.options.dotAttr);
-                d.attr("stroke", self.options.bgAttr.fill);
+            
+                d.attr("stroke", self.options.colors[self.getIndex(i)]);
+                //d.attr("stroke-opacity", 0.5);
                 d.attr("fill", self.options.colors[self.getIndex(i)]);
+                d.attr(self.options.dotAttr);
                 d.data("i",i);
                 d.data("j",j);
                 d.data("data", self.data.series[self.getIndex(i)]);

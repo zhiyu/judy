@@ -1,5 +1,14 @@
+/*
+@import url("http://fonts.googleapis.com/css?family=Cuprum");
+*/
+
 html,body,h1,h2,h3,h4,h5,h6,hr,p,dl,dt,dd,ul,ol,li,pre,button,input,textarea,th,td{ margin:0; padding:0; }
-html,body {font-size: 12px;font-family:Helvetica;background:#fff;height: 100%;background: #f4f4f4;}
+html,body {
+  color:#333;
+  font-size: 16px;font-family:"Cuprum", Helvetica, Arial, sans-serif;
+  height: 100%;
+  background: #fff;
+}
 h1,h2,h3,h4,h5,h6{font-size:100%;}
 h2{padding-bottom:10px;}
 ul,ol,li{list-style-type:none; overflow: hidden;_zoom:1;}
@@ -14,6 +23,8 @@ a{outline:none;}
 img,a img{ border: 0; vertical-align: middle; }
 input,select{ vertical-align: middle; margin: 0;}
 input:focus{outline:none;}
+
+pre{font-size: 12px;}
 
 em{ font-style: normal;  color: #07c; }
 select{height:25px;line-height:25px;}
@@ -51,97 +62,16 @@ a.btn:hover{
   text-decoration:none;
 }
 
-.foot{position:relative;height:60px;line-height: 20px;padding-top: 40px;color:#999;}
-.foot a{color:#666;}
-.bottom{position:relative;width:100%;}
-
-.left{
-  float: left;
-  width:200px;
-}
-
-.left .logo{
-    height:40px;
-    color:#000;
-    line-height: 40px;
-    font-size: 18px;
-    text-indent: 10px;
-    font-weight: bold;
-  }
-.left .apps{
-    border-bottom:1px solid #444;
-    border-top:1px solid #444;color:#98a594;font-size: 14px;
-    text-indent: 10px;
-    position: relative;
-}
-
-.left .apps img{
-   position: absolute;;
-   right:10px;
-   top: 10px;
-   cursor: pointer;
-}
-
-.left .appsWraper{
-  height: 100px;
-  display: none;
-}
-
-.left div {
-  margin: 0px 0px;
-  height: 100%;
-}
-
-.left ul li{
-  line-height: 30px;
-}
-.left ul li a {
-	display: block;
-	text-decoration: none;
-  text-indent: 10px;
-  color:#555;
-  font-size: 14px;
-}
-.left ul li a:hover{
-  color:#000;
-}
-.left ul li a.selected{
-  color:#000;
-}
-.left ul li a.selected:hover{
-}
-
-.left .category ul {
-  margin-right: 0px;
-}
-.left .category ul li a{
-  text-indent: 25px;
-  color:#666;
-  font-size: 12px;
-  border-top: none;
-  text-decoration: underline;
-}
-.left .category ul li a:hover{
-  text-indent: 25px;
-  color: #000;
-  text-decoration: underline;
-}
-.left .category ul li a.selected{
-  text-indent: 25px;
-  color: #000;
-  text-decoration: underline;
-}
 .main{
   position: absolute;
   left:0px;
   top:0px;
   right: 0px;
   overflow-y:auto; 
-  background: #ffffff;
 }
 
 .main .category{
-  margin:0px 30px;
+  margin:0px 0px;
 }
 
 .main h1{
