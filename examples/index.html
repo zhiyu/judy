@@ -206,6 +206,36 @@ Source Code :<br/><br/>
 
         </div>
 
+        <h1>Pie Charts</h1>
+        <div class="subcategory">
+          <div class="chart" id='chart4'  style="height:200px;"/></div>
+            Source Code :<br/><br/>        
+<pre><code>
+  var chart = new Chart(document.getElementById("chart"),'Pie',
+        {
+          series:[
+           [5],
+           [10],
+           [20]
+          ],
+          categories:["Jan","Feb","Mar"],
+          legends:["iPhone","Android","Windows Mobile"]
+        },
+        {
+          title:"Mobile Market",
+          getMin:function(){
+            return 0;
+          },
+          animationType:"bounce"
+        } 
+  );
+  chart.draw();
+  
+</code></pre>     
+
+        </div>
+
+
       </div >
       </div>
   </body>
@@ -325,6 +355,26 @@ Source Code :<br/><br/>
         } 
   );
   chart3.draw();
+
+  var chart4 = new Chart(document.getElementById("chart4"),'Pie',
+        {
+          series:[
+           [5],
+           [10],
+           [20]
+          ],
+          categories:["Jan","Feb","Mar"],
+          legends:["iPhone","Android","Windows Mobile"]
+        },
+        {
+          title:"Mobile Market",
+          getMin:function(){
+            return 0;
+          },
+          animationType:"bounce"
+        } 
+  );
+  chart4.draw();
 
   hljs.initHighlightingOnLoad();
 </script>

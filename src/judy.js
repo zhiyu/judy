@@ -3,7 +3,8 @@ var Chart = function(container, type, data, options){
     this.options = {
         title:"",
         margin:[60,20,40,80],
-        showTracker:true,
+        showTracker:false,
+        enableMultiTips:true,
         showGrid:true,
         stacked:false,
         threshold: null,
@@ -27,12 +28,14 @@ var Chart = function(container, type, data, options){
         getTickX: null,
         formatTickX: null,
         getTip:null,
+        showAxes: true,
+        showMarkers: true,
         titleAttr:{
             "font-weight":"bold",
             "font-size":14
         },
         bgAttr:{
-           fill:"transparent",
+           fill:"#fff",
            "stroke":"none"
         },
         trackerAttr:{
@@ -77,6 +80,11 @@ var Chart = function(container, type, data, options){
           "stroke-width":5,
           "opacity":0.9       
         },
+        pieAttr:{
+          "stroke":"#fff",  
+          "stroke-width":3,
+          "opacity":1      
+        },
         lineHoverAttr:{
           "stroke-width":5,
           "opacity":0.9       
@@ -111,16 +119,17 @@ Chart.prototype = {
             ticks:[[[],[]],[[],[]]], 
             markers:[]     
         }
+
         this.setContainer(container);
         this.setOptions(options);
         this.setType(type);
         this.setData(data);
-        this.setSize({width: this.options.width, height: this.options.height});
-        this.setFrame();
         this.setMax();
         this.setMin();
+
         this.gc = Raphael(this.container, this.options.width, this.options.height);
         this.setRender(new Render(this));
+
         return this;
     },
     setContainer: function(container){
@@ -159,12 +168,10 @@ Chart.prototype = {
     setData: function (data) {
         this.data = data;
     },
-    setFrame: function(){
-        var size   = this.getSize();
-        this.frame = {x:this.options.margin[3], y:this.options.margin[0], width:(size.width - this.options.margin[1] - this.options.margin[3]), height:(size.height - this.options.margin[0] - this.options.margin[2])}
-    },
     getFrame: function(){
-        return this.frame;
+        this.setSize({width: this.options.width, height: this.options.height});
+        var size   = this.getSize();
+        return {x:this.options.margin[3], y:this.options.margin[0], width:(size.width - this.options.margin[1] - this.options.margin[3]), height:(size.height - this.options.margin[0] - this.options.margin[2])}
     },
     setMax: function(){
         var max;
@@ -236,6 +243,16 @@ Chart.prototype = {
     getY: function(data,i){
         return this.options.getY != undefined?this.options.getY(data, i):data[i];
     },
+    getTotal: function(){
+        var total = 0;
+        for(var i=0;i<this.data.series.length;i++){
+            for(var j=0;j<this.data.series[i].length;j++){
+                var y = this.getY(this.data.series[i],j);
+                total += y;
+            }
+        }
+        return this.total = total;
+    },
     getTickY: function(i){
         var max = this.getMax(), min = this.getMin();
         var interval = (max - min)/this.options.tickSize;
@@ -262,11 +279,11 @@ Chart.prototype = {
 /*
  * Render Prototype
  */
-function Render(context){
-    this.context = context;
-    this.data    = this.context.data;
-    this.options = this.context.options;
-    this.gc      = this.context.getGC();
+function Render(chart){
+    this.chart = chart;
+    this.data    = this.chart.data;
+    this.options = this.chart.options;
+    this.gc      = this.chart.getGC();
     
     //this.clear();
     this.tdata = {};
@@ -279,28 +296,39 @@ function Render(context){
         legends:[[],[]]
     };
 
-    this.renderNames = ['Line','Area', 'Column'];
+    this.renderNames = ['Line','Area', 'Column','Pie'];
     this.renders = {};
-    for(var i in this.renderNames){
-        var renderName = this.renderNames[i];
-        eval("var RenderName = " + renderName + "Render");
-        this.renders[renderName] = new RenderName(this);
+
+    if(this.chart.type){
+        eval("var RenderName = " + this.chart.type + "Render");
+        this.renders[this.chart.type] = new RenderName(this);
+    }else{
+        for(var i in this.data.types){
+            var renderName = this.data.types[i];
+            eval("var RenderName = " + renderName + "Render");
+            this.renders[renderName] = new RenderName(this);
+        }
     }
+    
 }
 
 Render.prototype = {
-    run: function(context){ 
+    run: function(){ 
+        this.init();
         this.build();
         this.draw();
+    },
+    init: function(){
+
     },
     clear:function(){
         this.gc.clear();
     },
     getType:function (i){
-        return this.context.type?this.context.type:this.data.types[i];
+        return this.chart.type?this.chart.type:this.data.types[i];
     },
     getNumberOfType : function(i){
-        if(this.context.type)
+        if(this.chart.type)
             return this.tdata.series.length;
         
         var index = this.getIndex(i);
@@ -327,8 +355,8 @@ Render.prototype = {
     },
     getAlign:function (){
         var self = this;
-        if(this.context.type){
-            return this.renders[this.context.type].align;
+        if(this.chart.type){
+            return this.renders[this.chart.type].align;
         }else{
             for(var i=0;i<self.data.types.length;i++){
                 if(this.renders[self.data.types[i]].align == 1){
@@ -395,16 +423,16 @@ Render.prototype = {
                 this.tdata.series.push(serie);
                 var data = self.data.series[i];
                 for(var j = 0;j<data.length;j++){
-                    var x = self.context.getPixX(data.length, j, this.getAlign());
-                    var y =  self.context.getPixY(self.context.getY(data,j));
-                    serie[j] = [x, y];
+                    var x = self.chart.getPixX(data.length, j, this.getAlign());
+                    var y =  self.chart.getPixY(self.chart.getY(data,j));
+                    serie[j] = [x, y, self.chart.getY(data,j)];
                 }
             }
         }
     },
     createTitle: function(){
         var self = this;
-        var frame = self.context.getFrame();
+        var frame = self.chart.getFrame();
         var x =frame.x, y= 10;
         var text = self.gc.text(x, y);
         text.attr(self.options.titleAttr);
@@ -413,8 +441,9 @@ Render.prototype = {
     },
     createLegends: function(){
         var self = this;
-        var frame = self.context.getFrame();
-        var x =frame.x, y= frame.y - 20, margin = [10, 15];
+        var frame = self.chart.getFrame();
+        var r = 5;
+        var x =frame.x + r + 1, y= frame.y - 20, margin = [10, 15];
         for(var i=0;i<self.data.legends.length;i++){
             var title = self.data.legends[i];
             //compute x
@@ -425,7 +454,7 @@ Render.prototype = {
             var circle = self.gc.circle(x, y);
             circle.attr("stroke", self.options.colors[i]);
             circle.attr("fill", self.options.colors[i]);
-            circle.attr("r", "5");
+            circle.attr("r", r);
             //create text for legend
             var text = self.gc.text(x+margin[0], y);
             text.attr(self.options.legendAttr);
@@ -452,10 +481,13 @@ Render.prototype = {
         }
     },
     createAxes:function(){
+        if(!this.options.showAxes)
+            return;
+        
         var self      = this;
-        var min       = self.context.getPixY(self.context.getMin());
-        var threshold = (self.context.options.threshold!=null)?self.context.getPixY(self.context.options.threshold):min;
-        var frame     = this.context.getFrame();
+        var min       = self.chart.getPixY(self.chart.getMin());
+        var threshold = (self.chart.options.threshold!=null)?self.chart.getPixY(self.chart.options.threshold):min;
+        var frame     = this.chart.getFrame();
 
         //YAxis
         self.elements.axes[0]    = []; // 0 - yaxis, 1 - xaxis
@@ -471,8 +503,8 @@ Render.prototype = {
             self.elements.axes[0][1][i] = [];
             
             //texts
-            var y = this.context.getPixY(this.context.getTickY(i));
-            var text = this.gc.text(10, threshold,this.context.formatTickY(i));
+            var y = this.chart.getPixY(this.chart.getTickY(i));
+            var text = this.gc.text(10, threshold,this.chart.formatTickY(i));
             text.attr(this.options.tickYAttr);
             text.attr("width", frame.x);
             text.attr("text-anchor", "start");
@@ -504,7 +536,7 @@ Render.prototype = {
         for(var i=0;i<this.data.categories.length;i++){
             self.elements.axes[1][1][i] = [];
             
-            var text = this.gc.text(frame.x, min+3*this.options.tickLength,this.context.getTickX(i));
+            var text = this.gc.text(frame.x, min+3*this.options.tickLength,this.chart.getTickX(i));
             text.attr(this.options.tickXAttr);
             text.attr("text-anchor", "middle");
             
@@ -545,6 +577,8 @@ Render.prototype = {
         self.elements.series.splice(0);
     },
     createMarkers:function(){
+        if(!this.options.showMarkers) return;
+
         var self = this;
 
         //clear markers
@@ -589,12 +623,15 @@ Render.prototype = {
 
     },
     drawAxes: function(){
+        if(!this.options.showAxes)
+            return;
+        
         var self = this;
-        var minY = self.context.getPixY(self.context.getMin());
-        var frame = this.context.getFrame();
+        var minY = self.chart.getPixY(self.chart.getMin());
+        var frame = this.chart.getFrame();
         //YAxis
         for(var i=0;i<this.elements.axes[0][1].length;i++){
-            var y    = this.context.getPixY(this.context.getTickY(i));
+            var y    = this.chart.getPixY(this.chart.getTickY(i));
             var text = this.elements.axes[0][1][i][0];
             text.animate({"y":y}, self.options.timing);
             //text.attr({"y":y});
@@ -607,13 +644,13 @@ Render.prototype = {
             if(this.options.showGrid){
                 grid.show();
                 grid.animate({"path":"M"+frame.x+","+y+"L"+(frame.x+frame.width)+","+y}, self.options.timing);
-                //path.attr({"path":"M"+this.options.margin[3]+","+y+"L"+(this.context.getSize().w-this.options.margin[1])+","+y});
+                //path.attr({"path":"M"+this.options.margin[3]+","+y+"L"+(this.chart.getSize().w-this.options.margin[1])+","+y});
             }
         }
 
         //XAxis
         for(var i=0;i<this.data.categories.length;i++){
-            var x = this.context.getPixX(this.data.categories.length, i, this.getAlign());
+            var x = this.chart.getPixX(this.data.categories.length, i, this.getAlign());
 
             var text = this.elements.axes[1][1][i][0];
             text.animate({"x":x}, self.options.timing);
@@ -633,9 +670,9 @@ Render.prototype = {
     },
     drawBackground: function(){
         var self  = this;
-        var minY  = this.context.getPixY(this.context.getMin());
-        var frame = this.context.getFrame();
-        var bg    = this.gc.rect(0, 0, this.context.getSize().width, this.context.getSize().height);
+        var minY  = this.chart.getPixY(this.chart.getMin());
+        var frame = this.chart.getFrame();
+        var bg    = this.gc.rect(0, 0, this.chart.getSize().width, this.chart.getSize().height);
         
         bg.toBack();
         bg.attr(self.options.bgAttr);
@@ -660,7 +697,7 @@ Render.prototype = {
             }
 
             self.clearTooltips();
-            if(self.options.showTracker){
+            if(self.options.enableMultiTips){
                 els = self.getMarkers(0, offsetX);
                 //draw tracker
                 if(offsetX >= frame.x && offsetX <= frame.x+frame.width && offsetY > frame.y){
@@ -673,7 +710,7 @@ Render.prototype = {
                         }
                     }
                     if(self.options.showTracker){
-                        //tracker.attr("path","M"+offsetX+","+self.options.margin[0]+"L"+offsetX+","+minY); 
+                        tracker.attr("path","M"+offsetX+","+self.options.margin[0]+"L"+offsetX+","+minY); 
                     }
                 }
             }
@@ -695,6 +732,8 @@ Render.prototype = {
         }
     },
     drawMarkers: function(){
+        if(!this.options.showMarkers) return;
+
         var self = this;
         for(var i=0;i<self.tdata.series.length;i++){
             var dot    = self.elements.markers[i];
@@ -719,7 +758,7 @@ Render.prototype = {
         var texts = [];
         for(var i=0;i<els.length;i++){
             var el   = els[i];
-            var tip  = this.context.getTip(el[0], el[1], el[2]);
+            var tip  = this.chart.getTip(el[0], el[1], el[2]);
             var text = this.gc.text(0, y, tip);
             text.attr(this.options.tipAttr.textAttr);
             texts.push(text);
@@ -739,7 +778,7 @@ Render.prototype = {
             xcorner = ycorner = hh-angle;
         }
     
-        var xa, tx, frame = this.context.getFrame();
+        var xa, tx, frame = this.chart.getFrame();
         //check if tip's frame is out of bounds
         if(x+angle+w > frame.x+frame.width){
             w  = -w;
@@ -838,7 +877,7 @@ function LineRender(render){
     
     this.drawPlot = function(el, data, i, j){
         var self = this, data = data[i], x = data[j][0], y = data[j][1];
-        var threshold = self.context.getThreshold();
+        var threshold = self.chart.getThreshold();
         var pathStart = el.data("pathStart")==undefined?"":el.data("pathStart");
         var pathEnd   = el.data("pathEnd")==undefined?"":el.data("pathEnd");
 
@@ -870,7 +909,7 @@ function LineRender(render){
 
     this.drawMarker = function(el, data, i, j){
         var self = this, data = data[i], x = data[j][0], y = data[j][1];
-        var threshold = self.context.getThreshold();
+        var threshold = self.chart.getThreshold();
         el.attr("cx",x);
         el.attr("cy",threshold);
         el.animate({"cy":y}, self.options.timing, self.options.animationType);
@@ -886,7 +925,7 @@ function AreaRender(render){
     this.drawPlot = function(el, data, i, j){
         data = data[i];
         var self = this, x = data[j][0], y = data[j][1];
-        var threshold = self.context.getThreshold();
+        var threshold = self.chart.getThreshold();
         var pathStart = el.data("pathStart")==undefined?"":el.data("pathStart");
         var pathEnd   = el.data("pathEnd")==undefined?"":el.data("pathEnd");
         if(j==0){
@@ -926,7 +965,7 @@ function AreaRender(render){
 
     this.drawMarker = function(el, data, i, j){
         var self = this, data = data[i], x = data[j][0], y = data[j][1];
-        var threshold = self.context.getThreshold();
+        var threshold = self.chart.getThreshold();
         el.attr("cx",x);
         el.attr("cy",threshold);
         el.animate({"cy":y}, self.options.timing, self.options.animationType);
@@ -941,7 +980,7 @@ function ColumnRender(render){
     extend(this, render);
     
     this.align = 1;
-
+  
     this.createPlot = function(i){
         var self = this;
         self.elements.series[i] = [];
@@ -977,8 +1016,8 @@ function ColumnRender(render){
         el.data("j",j);
 
         var self      = this;
-        var frame     = this.context.getFrame();
-        var base      = self.context.getThreshold();
+        var frame     = this.chart.getFrame();
+        var base      = self.chart.getThreshold();
         var w         = (self.tdata.series[0][0][0] - frame.x)*2;
 
         var padding   = w/5;
@@ -989,7 +1028,7 @@ function ColumnRender(render){
         var pathStart = "M"+ix+","+base+"L"+ix+","+base+"L"+(ix+iw)+","+base+"L"+(ix+iw)+","+base+"Z";
         var pathEnd   = "M"+ix+","+base+"L"+ix+","+y+"L"+(ix+iw)+","+y+"L"+(ix+iw)+","+base+"Z";
 
-        if(self.context.options.stacked){
+        if(self.chart.options.stacked){
             iw = w-2*padding;
             ix = data[i][j][0] - w/2 + padding;
             if(i>0){
@@ -1010,8 +1049,8 @@ function ColumnRender(render){
     
     this.drawMarker = function(el, data, i, j){
         var self = this;
-        var frame = this.context.getFrame();
-        var base = self.context.getThreshold();
+        var frame = this.chart.getFrame();
+        var base = self.chart.getThreshold();
         var w    = (self.tdata.series[0][0][0] - frame.x)*2;
         var padding = w/5;
 
@@ -1037,6 +1076,61 @@ function ColumnRender(render){
         dot.animate({"cy":y}, self.options.timing, self.options.animationType);
     }
 }
+
+
+
+/*
+ * Pie Chart 
+ */
+function PieRender(render){
+    extend(this, render);
+    
+    this.align = 1;
+    this.options.showAxes = false;
+    this.options.showMarkers = false;
+    this.options.margin = [60,0,0,0];
+
+    this.sector = function(cx, cy, r, start, end) {
+        this.endAngle = end;
+        var rad = Math.PI / 180;
+        var x1 = cx + r * Math.cos(-start * rad), x2 = cx + r * Math.cos(-end * rad), y1 = cy + r * Math.sin(-start * rad), y2 = cy + r * Math.sin(-end * rad);
+        return ["M", cx, cy, "L", x1, y1, "A", r, r, 0, +(end - start > 180), 0, x2, y2, "Z"];
+    }
+
+    this.createPlot = function(i){
+        var self = this;
+        self.elements.series[i] = [];
+        var data = self.tdata.series[i];
+        for(var j=0;j<data.length;j++){
+            var path = self.gc.path("");
+            path.attr(self.options.pieAttr);
+            path.attr("fill", self.options.colors[self.getIndex(i)]); 
+            self.elements.series[i].push(path);
+        }
+    }
+
+    this.drawPlot = function(el, data, i, j){
+        if(i==0){
+            this.endAngle = 0;
+        }
+
+        var total = this.chart.getTotal();
+        el.mouseover(function(){
+        }).mouseout(function(){
+        });
+
+        var self      = this;
+        var frame     = this.chart.getFrame();
+        
+        var cx = frame.x+frame.width/2;
+        var cy = frame.y+frame.height/2;
+
+        var ang = this.endAngle;
+        el.attr("path", this.sector(cx, cy, 1, ang, ang + 360*data[i][j][2]/total));
+        el.animate({path:this.sector(cx, cy, frame.height/2, ang, ang + 360*data[i][j][2]/total)}, self.options.timing, self.options.animationType);
+    }
+}
+
 
 /*
  * utils

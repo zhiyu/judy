@@ -37,7 +37,7 @@ textarea{
 }
 textarea:focus{outline:none;}
 
-.main .subcategory .chart{margin-bottom: 20px;}
+.main .subcategory .chart{}
 .clr{clear:both;}
 .txt{padding:5px 5px;background:#98a594;color:#fff;border:none;width:200px;}
 .readonly{height:30px;line-height:30px;background:none;border:none;width:200px;text-indent:5px;}
@@ -89,7 +89,7 @@ a.btn:hover{
 	margin:30px;
 }
 .main .subcategory div{
-  padding:20px 0px 0px 0px;
+  margin:20px 0px 0px 0px;
   line-height: 20px;
   color:#666;
 }
