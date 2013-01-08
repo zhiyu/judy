@@ -2,7 +2,7 @@
 var Chart = function(container, type, data, options){
     this.options = {
         title:"",
-        margin:[60,20,40,80],
+        margin:[60,20,40,30],
         showTracker:false,
         enableMultiTips:true,
         showGrid:true,
@@ -168,10 +168,21 @@ Chart.prototype = {
     setData: function (data) {
         this.data = data;
     },
-    getFrame: function(){
+    setFrame: function(){
+        var left = 0;
+        if(this.elements.axes.length > 0){
+            for(var i=0;i<this.elements.axes[0][1].length;i++){
+                var text = this.elements.axes[0][1][i][0];    
+                if(text.getBBox().width > left)
+                    left = text.getBBox().width;
+            }
+        }
         this.setSize({width: this.options.width, height: this.options.height});
         var size   = this.getSize();
-        return {x:this.options.margin[3], y:this.options.margin[0], width:(size.width - this.options.margin[1] - this.options.margin[3]), height:(size.height - this.options.margin[0] - this.options.margin[2])}
+        this.frame = {x:this.options.margin[3] + left, y:this.options.margin[0], width:(size.width - this.options.margin[1] - this.options.margin[3] - left), height:(size.height - this.options.margin[0] - this.options.margin[2])}
+    },
+    getFrame: function(){
+        return this.frame?this.frame:{x:0,y:0,width:0,height:0};
     },
     setMax: function(){
         var max;
@@ -287,7 +298,7 @@ function Render(chart){
     
     //this.clear();
     this.tdata = {};
-    this.elements = {
+    this.elements = this.chart.elements = {
         axes:[],
         series:[], 
         markers: [],
@@ -367,9 +378,10 @@ Render.prototype = {
         return 0;
     },
     build: function(){
+        this.buildAxes();
+        this.chart.setFrame();
         this.buildTitle();
         this.buildLegends();
-        this.buildAxes();
         this.buildPlots();
         this.buildMarkers();
     },
@@ -392,12 +404,12 @@ Render.prototype = {
     },
     draw: function(){
         var self = this;
-        self.drawTitle();
-        self.drawLegends();
-        self.drawAxes();
-        self.drawBackground();
         if(!this.isRedraw){
             setTimeout(function(){
+                self.drawTitle();
+                self.drawLegends();
+                self.drawAxes();
+                self.drawBackground();
                 self.drawPlots();   
                 self.drawMarkers();   
             },self.options.timing);
@@ -485,10 +497,7 @@ Render.prototype = {
             return;
         
         var self      = this;
-        var min       = self.chart.getPixY(self.chart.getMin());
-        var threshold = (self.chart.options.threshold!=null)?self.chart.getPixY(self.chart.options.threshold):min;
-        var frame     = this.chart.getFrame();
-
+       
         //YAxis
         self.elements.axes[0]    = []; // 0 - yaxis, 1 - xaxis
         self.elements.axes[0][1] = []; // texts, ticks
@@ -496,29 +505,25 @@ Render.prototype = {
 
         var yaxis = self.gc.path("");
         yaxis.attr(self.options.tickYAttr);
-        yaxis.attr("path","M"+frame.x+","+frame.y+"L"+frame.x+","+(frame.y+frame.height));
         self.elements.axes[0][0] = yaxis;
 
         for(var i=0;i<this.options.tickSize+1;i++){
             self.elements.axes[0][1][i] = [];
-            
+
             //texts
-            var y = this.chart.getPixY(this.chart.getTickY(i));
-            var text = this.gc.text(10, threshold,this.chart.formatTickY(i));
+            var text = this.gc.text(0,0,this.chart.formatTickY(i));
             text.attr(this.options.tickYAttr);
-            text.attr("width", frame.x);
             text.attr("text-anchor", "start");
             
             //tick
             var tick = this.gc.path("");
             tick.attr(self.options.tickYAttr);
-            tick.attr("path","M"+frame.x+","+threshold+"L"+(frame.x-this.options.tickLength)+","+threshold);
             
             //grid
             var grid = this.gc.path("");
             grid.attr(self.options.gridYAttr);
-            grid.attr("path","M"+frame.x+","+threshold+"L"+(frame.width+frame.x)+","+threshold);
             grid.hide();
+            
             //save elements
             self.elements.axes[0][1][i][0] = text;
             self.elements.axes[0][1][i][1] = tick;
@@ -530,29 +535,86 @@ Render.prototype = {
 
         var xaxis = this.gc.path("");
         xaxis.attr(self.options.tickXAttr);
-        xaxis.attr("path","M"+frame.x+","+(frame.y+frame.height)+"L"+(frame.x+frame.width)+","+(frame.y+frame.height));
-        self.elements.axes[1][0] = yaxis;
+        self.elements.axes[1][0] = xaxis;
         
         for(var i=0;i<this.data.categories.length;i++){
             self.elements.axes[1][1][i] = [];
             
-            var text = this.gc.text(frame.x, min+3*this.options.tickLength,this.chart.getTickX(i));
-            text.attr(this.options.tickXAttr);
+            var text = this.gc.text(0,0,this.chart.getTickX(i));
+            text.attr(this.options.tickYAttr);
             text.attr("text-anchor", "middle");
             
+            //tick
             var tick = this.gc.path("");
             tick.attr(self.options.tickXAttr);
-            tick.attr("path","M"+frame.x+","+min+"L"+frame.x+","+(min+this.options.tickLength));
-
+            
+            //grid
             var grid = this.gc.path("");
             grid.attr(self.options.gridXAttr);
-            grid.attr("path","M"+frame.x+","+frame.y+"L"+frame.x+","+min);
             grid.hide();
 
             //save elements
             self.elements.axes[1][1][i][0] = text;
             self.elements.axes[1][1][i][1] = tick;
             self.elements.axes[1][2][i]    = grid;
+        }
+    },
+    drawAxes: function(){
+        if(!this.options.showAxes)
+            return;
+        
+        var self = this;
+        var minY = self.chart.getPixY(self.chart.getMin());
+        
+        var threshold = (self.chart.options.threshold!=null)?self.chart.getPixY(self.chart.options.threshold):minY;
+        var frame = this.chart.getFrame();
+
+        var yaxis = self.elements.axes[0][0];
+        yaxis.attr("path","M"+frame.x+","+frame.y+"L"+frame.x+","+(frame.y+frame.height));
+        
+        //YAxis
+        for(var i=0;i<this.elements.axes[0][1].length;i++){
+            var y    = this.chart.getPixY(this.chart.getTickY(i));
+            var text = this.elements.axes[0][1][i][0];
+            text.attr("width", frame.x);
+            text.attr("x", self.chart.options.margin[3] - self.chart.options.tickLength - 5);
+            text.attr("y", threshold);
+            text.animate({"y":y}, self.options.timing);
+            
+            var tick = this.elements.axes[0][1][i][1];
+            tick.attr("path","M"+frame.x+","+threshold+"L"+(frame.x-this.options.tickLength)+","+threshold);
+            tick.animate({"path":"M"+frame.x+","+y+"L"+(frame.x-this.options.tickLength)+","+y}, self.options.timing);
+           
+            var grid = this.elements.axes[0][2][i];
+            if(this.options.showGrid){
+                grid.show();
+                grid.attr("path","M"+frame.x+","+threshold+"L"+(frame.width+frame.x)+","+threshold);
+                grid.animate({"path":"M"+frame.x+","+y+"L"+(frame.x+frame.width)+","+y}, self.options.timing);
+            }
+        }
+
+        //XAxis
+        var xaxis =  self.elements.axes[1][0];
+        xaxis.attr("path","M"+frame.x+","+(frame.y+frame.height)+"L"+(frame.x+frame.width)+","+(frame.y+frame.height));
+
+        for(var i=0;i<this.data.categories.length;i++){
+            var x = this.chart.getPixX(this.data.categories.length, i, this.getAlign());
+
+            var text = this.elements.axes[1][1][i][0];
+            text.attr("x", frame.x);
+            text.attr("y", minY+3*this.options.tickLength);
+            text.animate({"x":x}, self.options.timing);
+
+            var tick = this.elements.axes[1][1][i][1];
+            tick.attr("path","M"+frame.x+","+minY+"L"+frame.x+","+(minY+this.options.tickLength));
+            tick.animate({"path":"M"+x+","+minY+"L"+x+","+(minY+this.options.tickLength)}, self.options.timing);
+            
+            var grid = this.elements.axes[1][2][i];
+            if(this.options.showGrid){
+                grid.show();
+                grid.attr("path","M"+frame.x+","+frame.y+"L"+frame.x+","+minY);
+                grid.animate({"path":"M"+x+","+frame.y+"L"+x+","+minY}, self.options.timing);  
+            }
         }
     },
     createPlots:function(){
@@ -621,52 +683,6 @@ Render.prototype = {
     },
     drawLegends: function(){
 
-    },
-    drawAxes: function(){
-        if(!this.options.showAxes)
-            return;
-        
-        var self = this;
-        var minY = self.chart.getPixY(self.chart.getMin());
-        var frame = this.chart.getFrame();
-        //YAxis
-        for(var i=0;i<this.elements.axes[0][1].length;i++){
-            var y    = this.chart.getPixY(this.chart.getTickY(i));
-            var text = this.elements.axes[0][1][i][0];
-            text.animate({"y":y}, self.options.timing);
-            //text.attr({"y":y});
-
-            var tick = this.elements.axes[0][1][i][1];
-            tick.animate({"path":"M"+frame.x+","+y+"L"+(frame.x-this.options.tickLength)+","+y}, self.options.timing);
-            //path.attr({"path":"M"+this.options.margin[3]+","+y+"L"+(this.options.margin[3]-this.options.tickLength)+","+y});
-            
-            var grid = this.elements.axes[0][2][i];
-            if(this.options.showGrid){
-                grid.show();
-                grid.animate({"path":"M"+frame.x+","+y+"L"+(frame.x+frame.width)+","+y}, self.options.timing);
-                //path.attr({"path":"M"+this.options.margin[3]+","+y+"L"+(this.chart.getSize().w-this.options.margin[1])+","+y});
-            }
-        }
-
-        //XAxis
-        for(var i=0;i<this.data.categories.length;i++){
-            var x = this.chart.getPixX(this.data.categories.length, i, this.getAlign());
-
-            var text = this.elements.axes[1][1][i][0];
-            text.animate({"x":x}, self.options.timing);
-            //text.attr({"x":x});
-
-            var tick = this.elements.axes[1][1][i][1];
-            tick.animate({"path":"M"+x+","+minY+"L"+x+","+(minY+this.options.tickLength)}, self.options.timing);
-            //path.attr({"path":"M"+x+","+minY+"L"+x+","+(minY+this.options.tickLength)});
-            
-            var grid = this.elements.axes[1][2][i];
-            if(this.options.showGrid){
-                grid.show();
-                grid.animate({"path":"M"+x+","+frame.y+"L"+x+","+minY}, self.options.timing);  
-                //path.attr({"path":"M"+x+","+this.options.margin[0]+"L"+x+","+minY});  
-            }
-        }
     },
     drawBackground: function(){
         var self  = this;
@@ -1121,7 +1137,6 @@ function PieRender(render){
 
         var self      = this;
         var frame     = this.chart.getFrame();
-        
         var cx = frame.x+frame.width/2;
         var cy = frame.y+frame.height/2;
 
