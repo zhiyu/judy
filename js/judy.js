@@ -1,3 +1,8 @@
+/*
+ * Judy - a javaScript charting library
+ * ©2013 zhiyu zheng (http://github.com/nodengine/judy)
+ * Licensed under the MIT (http://raphaeljs.com/license.html) license.
+ */
 
 var Chart = function(container, type, data, options){
     this.options = {
@@ -894,23 +899,24 @@ function LineRender(render){
     this.drawPlot = function(el, data, i, j){
         var self = this, data = data[i], x = data[j][0], y = data[j][1];
         var threshold = self.chart.getThreshold();
-        var pathStart = el.data("pathStart")==undefined?"":el.data("pathStart");
-        var pathEnd   = el.data("pathEnd")==undefined?"":el.data("pathEnd");
+        var pathFrom = el.data("pathFrom")==undefined?"":el.data("pathFrom");
+        var pathTo   = el.data("pathTo")==undefined?"":el.data("pathTo");
 
         if(j==0){
-            pathStart = "M"+x+","+threshold;
-            pathEnd   = "M"+x+","+y;
+            pathFrom = "M"+x+","+threshold;
+            pathTo   = "M"+x+","+y;
         }else{
             var x1    = data[j-1][0], y1 = data[j-1][1];
             var ix    = (x - x1)/1.5;
-            pathStart += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
-            pathEnd   += "S"+(x1+ix)+","+y+" "+x+","+y;   
+            pathFrom += "S"+(x1+ix)+","+threshold+" "+x+","+threshold;
+            pathTo   += "S"+(x1+ix)+","+y+" "+x+","+y;   
         }
-        el.data("pathStart", pathStart);
-        el.data("pathEnd", pathEnd);
+
+        el.data("pathFrom", pathFrom);
+        el.data("pathTo", pathTo);
         if(j == data.length-1){
-            el.attr("path", pathStart);
-            el.animate({path:pathEnd}, self.options.timing, self.options.animationType);
+            el.attr("path", pathFrom);
+            el.animate({path:pathTo}, self.options.timing, self.options.animationType);
         }
     }
 
