@@ -514,11 +514,13 @@ Render.prototype = {
             var text = this.gc.text(0,0,this.chart.formatTickY(i));
             text.attr(this.options.tickYAttr);
             text.attr("text-anchor", "start");
-            
+            text.hide();
+
             //tick
             var tick = this.gc.path("");
             tick.attr(self.options.tickYAttr);
-            
+            tick.hide();
+
             //grid
             var grid = this.gc.path("");
             grid.attr(self.options.gridYAttr);
@@ -543,11 +545,13 @@ Render.prototype = {
             var text = this.gc.text(0,0,this.chart.getTickX(i));
             text.attr(this.options.tickYAttr);
             text.attr("text-anchor", "middle");
-            
+            text.hide();
+
             //tick
             var tick = this.gc.path("");
             tick.attr(self.options.tickXAttr);
-            
+            tick.hide();
+
             //grid
             var grid = this.gc.path("");
             grid.attr(self.options.gridXAttr);
@@ -576,12 +580,14 @@ Render.prototype = {
         for(var i=0;i<this.elements.axes[0][1].length;i++){
             var y    = this.chart.getPixY(this.chart.getTickY(i));
             var text = this.elements.axes[0][1][i][0];
+            text.show();
             text.attr("width", frame.x);
             text.attr("x", self.chart.options.margin[3] - self.chart.options.tickLength - 5);
             text.attr("y", threshold);
             text.animate({"y":y}, self.options.timing);
             
             var tick = this.elements.axes[0][1][i][1];
+            tick.show();
             tick.attr("path","M"+frame.x+","+threshold+"L"+(frame.x-this.options.tickLength)+","+threshold);
             tick.animate({"path":"M"+frame.x+","+y+"L"+(frame.x-this.options.tickLength)+","+y}, self.options.timing);
            
@@ -601,11 +607,13 @@ Render.prototype = {
             var x = this.chart.getPixX(this.data.categories.length, i, this.getAlign());
 
             var text = this.elements.axes[1][1][i][0];
+            text.show();
             text.attr("x", frame.x);
             text.attr("y", minY+3*this.options.tickLength);
             text.animate({"x":x}, self.options.timing);
 
             var tick = this.elements.axes[1][1][i][1];
+            tick.show();
             tick.attr("path","M"+frame.x+","+minY+"L"+frame.x+","+(minY+this.options.tickLength));
             tick.animate({"path":"M"+x+","+minY+"L"+x+","+(minY+this.options.tickLength)}, self.options.timing);
             
@@ -657,7 +665,7 @@ Render.prototype = {
             var dot  = new Array();
             for(var j = 0;j<data.length;j++){
                 var d = self.gc.circle(0, 0);
-            
+                d.hide();
                 d.attr("stroke", self.options.colors[self.getIndex(i)]);
                 //d.attr("stroke-opacity", 0.5);
                 d.attr("fill", self.options.colors[self.getIndex(i)]);
@@ -756,7 +764,8 @@ Render.prototype = {
             var data   = self.tdata.series[i];
             for(var j=0;j<data.length;j++){
                 var el = dot[j];
-                 this.renders[this.getType(this.getIndex(i))].drawMarker(el, self.tdata.series, i, j);
+                el.show();
+                this.renders[this.getType(this.getIndex(i))].drawMarker(el, self.tdata.series, i, j);
             } 
         }
     },
