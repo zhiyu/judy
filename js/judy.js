@@ -1104,7 +1104,6 @@ function ColumnRender(render){
  */
 function PieRender(render){
     extend(this, render);
-    
     this.align = 1;
     this.options.showAxes = false;
     this.options.showMarkers = false;
