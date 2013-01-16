@@ -953,6 +953,61 @@ function ColumnRender(){
 }
 
 /*
+ * Pie Chart 
+ */
+function PieRender(render){
+    extend(this, render);
+    
+    this.align = 1;
+    this.options.showAxes = false;
+    this.options.showMarkers = false;
+    this.options.margin = [60,0,0,0];
+
+    this.sector = function(cx, cy, rFrom, rTo, start, end) {
+        this.endAngle = end;
+        var rad = Math.PI / 180;
+        var x1 = cx + rFrom * Math.cos(-start * rad);
+        var y1 = cy + rFrom * Math.sin(-start * rad);
+        var x2 = cx + rFrom * Math.cos(-end * rad);
+        var y2 = cy + rFrom * Math.sin(-end * rad);
+        var x3 = cx + rTo * Math.cos(-end * rad);
+        var y3 = cy + rTo * Math.sin(-end * rad);
+        var x4 = cx + rTo * Math.cos(-start * rad);
+        var y4 = cy + rTo * Math.sin(-start * rad);
+        return ["M", x1, y1, "A", rFrom, rFrom, 0, +(end - start > 180), 0, x2, y2, "L", x3, y3,  "A", rTo, rTo, 0, +(end - start > 180), 1, x4, y4, "Z"];
+    }
+
+    this.createPlot = function(i){
+        var self = this;
+        self.elements.series[i] = [];
+        var data = self.tdata.series[i];
+        for(var j=0;j<data.length;j++){
+            var path = self.gc.path("");
+            path.attr(self.options.pieAttr);
+            path.attr("fill", self.options.colors[self.getIndex(i)]); 
+            self.elements.series[i].push(path);
+        }
+    }
+
+    this.drawPlot = function(el, data, i, j){
+        if(j==0){
+            this.endAngle = 0;
+        }
+        var total = this.chart.getTotal(i);
+        var self      = this;
+        var frame     = this.chart.getFrame();
+        var cx = frame.x+frame.width/2;
+        var cy = frame.y+frame.height/2;
+        var r = (frame.height > frame.width ? frame.width/2 : frame.height/2)/self.tdata.series.length;
+        var rFrom = i*r;
+        var rTo = (i+1)*r;
+        var ang = this.endAngle;
+        el.attr("path", this.sector(cx, cy, rFrom, rFrom, ang, ang + 360*data[i][j][2]/total));
+        el.animate({path:this.sector(cx, cy, rFrom, rTo, ang, ang + 360*data[i][j][2]/total)}, self.options.timing, self.options.animationType);
+    }
+}
+
+/*
  * utils
  */
 function extend(){
