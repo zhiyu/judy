@@ -13,41 +13,6 @@
   <body>
     <div class="main">
       <div class="category">
-        <h1>About</h1>
-        <div class="subcategory">
-          <p>
-           <a href="http://github.com/nodengine/judy">judy</a> is a javascript charting library for web application development.
-          </p>
-        </div>
-      </div>
-      <div class="category">
-        <h1>License</h1>
-        <div class="subcategory">
-            <p>Copyright&nbsp;&copy;2012&nbsp;&nbsp;zhiyu zheng &nbsp;&nbsp; all rights reserved.</p>  
-            <br/>          
-            <p>
-            Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-            </p>
-            <br/>
-            <p>
-            The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-            <br/>
-            Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-            </p>
-            <br/>
-            <p>
-            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-            </p>
-        </div>
-      </div>
-      <div class="category">
-        <h1>Contact</h1>
-        <div class="subcategory">
-        any question about judy, please feel free to contact <a href="mailto:zhengzhiyu@yeah.net">zhengzhiyu@yeah.net</a>
-        </div>
-      </div>
-      <div style="padding:30px;font-weight:bold;font-size:16px;text-align:center;">Chart Demos</div>
-      <div class="category">
         <h1>Line Charts</h1>
         <div class="subcategory">
           <div class="chart" id='chart' style="height:400px;" /></div>
@@ -175,12 +140,7 @@ Source Code :<br/><br/>
           getMin:function(){
             return 0;
           },
-          animationType:"bounce",
-          threshold:10,
-          lineAttr:{
-            "stroke-width":1,
-            "opacity":0.9       
-          }
+          animationType:"bounce"
         } 
   );
 
@@ -206,11 +166,7 @@ Source Code :<br/><br/>
             return 0;
           },
           animationType:"bounce",
-          stacked:true,
-          lineAttr:{
-            "stroke-width":1,
-            "opacity":0.9       
-          }
+          stacked:true
         } 
   );
 
@@ -218,6 +174,68 @@ Source Code :<br/><br/>
   
 </code></pre>            
         </div>
+
+        <h1>Combination Charts</h1>
+        <div class="subcategory">
+          <div class="chart" id='chart3'  style="height:400px;"/></div>
+Source Code :<br/><br/>        
+<pre><code>
+  var chart = new Chart(document.getElementById("chart"),null,
+        {
+          series:[
+           [3,10,12,6,10,3,10,12,6,10,3,10],
+           [4,9,15,5,19,4,9,15,15,5,19,4],
+           [7,1,5,10,6,9,20,10,5,10,6,9]
+          ],
+          categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+          legends:["iPhone","Android","Windows Mobile"],
+          types:['Area', 'Column', 'Line']
+        },
+        {
+          title:"Mobile Market",
+          getMin:function(){
+            return 0;
+          },
+          animationType:"bounce"
+        } 
+  );
+
+  chart.draw();
+  
+</code></pre>     
+
+        </div>
+
+        <h1>Pie Charts</h1>
+        <div class="subcategory">
+          <div class="chart" id='chart4'  style="height:200px;"/></div>
+            Source Code :<br/><br/>        
+<pre><code>
+  var chart = new Chart(document.getElementById("chart"),'Pie',
+        {
+          series:[
+           [5],
+           [10],
+           [20]
+          ],
+          categories:["Jan","Feb","Mar"],
+          legends:["iPhone","Android","Windows Mobile"]
+        },
+        {
+          title:"Mobile Market",
+          getMin:function(){
+            return 0;
+          },
+          animationType:"bounce"
+        } 
+  );
+  chart.draw();
+  
+</code></pre>     
+
+        </div>
+
+
       </div >
       </div>
   </body>
@@ -280,11 +298,7 @@ Source Code :<br/><br/>
         getMin:function(){
           return 0;
         },
-        animationType:"bounce",
-        lineAttr:{
-          "stroke-width":1,
-          "opacity":0.9       
-        }
+        animationType:"bounce"
       }
     );
     chart2.draw();
@@ -300,11 +314,7 @@ Source Code :<br/><br/>
           return 0;
         },
         animationType:"bounce",
-        threshold:10,
-        lineAttr:{
-          "stroke-width":1,
-          "opacity":0.9       
-        }
+        threshold:10
       }
     );
     chart201.draw();
@@ -320,14 +330,51 @@ Source Code :<br/><br/>
           return 0;
         },
         stacked:true,
-        animationType:"bounce",
-        lineAttr:{
-          "stroke-width":1,
-          "opacity":0.9       
-        }
+        animationType:"bounce"
       }
     );
     chart202.draw();
 
-    hljs.initHighlightingOnLoad();
+    var chart3 = new Chart(document.getElementById("chart3"),null,
+        {
+          series:[
+           [3,10,12,6,10,3,10,12,6,10,3,10],
+           [4,9,15,5,19,4,9,15,15,5,19,4],
+           [7,1,5,10,6,9,20,10,5,10,6,9]
+          ],
+          categories:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+          legends:["iPhone","Android","Windows Mobile"],
+          types:['Area', 'Column', 'Line']
+        },
+        {
+          title:"Mobile Market",
+          getMin:function(){
+            return 0;
+          },
+          animationType:"bounce"
+        } 
+  );
+  chart3.draw();
+
+  var chart4 = new Chart(document.getElementById("chart4"),'Pie',
+        {
+          series:[
+           [5],
+           [10],
+           [20]
+          ],
+          categories:["Jan","Feb","Mar"],
+          legends:["iPhone","Android","Windows Mobile"]
+        },
+        {
+          title:"Mobile Market",
+          getMin:function(){
+            return 0;
+          },
+          animationType:"bounce"
+        } 
+  );
+  chart4.draw();
+
+  hljs.initHighlightingOnLoad();
 </script>

@@ -1,6 +1,6 @@
 About
 -------------------------
-[judy](http://github.com/nodengine/judy) is a javascript charting library for web application development.
+[judy](http://github.com/nodengine/judy) is a charting library for web application development.
 
 Demos
 -------------------------
