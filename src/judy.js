@@ -1,4 +1,9 @@
-
+/*
+ * Judy - a javaScript charting library
+ * ©2013 zhiyu zheng (http://github.com/nodengine/judy)
+ * Licensed under the MIT (http://raphaeljs.com/license.html) license.
+ */
+ 
 var Chart = function(container, type, data, options){
     this.options = {
         title:"",
