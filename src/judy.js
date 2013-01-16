@@ -1107,60 +1107,6 @@ function ColumnRender(render){
     }
 }
 
-
-
-/*
- * Pie Chart 
- */
-function PieRender(render){
-    extend(this, render);
-    
-    this.align = 1;
-    this.options.showAxes = false;
-    this.options.showMarkers = false;
-    this.options.margin = [60,0,0,0];
-
-    this.sector = function(cx, cy, r, start, end) {
-        this.endAngle = end;
-        var rad = Math.PI / 180;
-        var x1 = cx + r * Math.cos(-start * rad), x2 = cx + r * Math.cos(-end * rad), y1 = cy + r * Math.sin(-start * rad), y2 = cy + r * Math.sin(-end * rad);
-        return ["M", cx, cy, "L", x1, y1, "A", r, r, 0, +(end - start > 180), 0, x2, y2, "Z"];
-    }
-
-    this.createPlot = function(i){
-        var self = this;
-        self.elements.series[i] = [];
-        var data = self.tdata.series[i];
-        for(var j=0;j<data.length;j++){
-            var path = self.gc.path("");
-            path.attr(self.options.pieAttr);
-            path.attr("fill", self.options.colors[self.getIndex(i)]); 
-            self.elements.series[i].push(path);
-        }
-    }
-
-    this.drawPlot = function(el, data, i, j){
-        if(i==0){
-            this.endAngle = 0;
-        }
-
-        var total = this.chart.getTotal();
-        el.mouseover(function(){
-        }).mouseout(function(){
-        });
-
-        var self      = this;
-        var frame     = this.chart.getFrame();
-        var cx = frame.x+frame.width/2;
-        var cy = frame.y+frame.height/2;
-
-        var ang = this.endAngle;
-        el.attr("path", this.sector(cx, cy, 1, ang, ang + 360*data[i][j][2]/total));
-        el.animate({path:this.sector(cx, cy, frame.height/2, ang, ang + 360*data[i][j][2]/total)}, self.options.timing, self.options.animationType);
-    }
-}
-
-
 /*
  * Pie Chart 
  */
