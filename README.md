@@ -4,7 +4,7 @@ About
 
 Demos
 -------------------------
-[http://nodengine.com/judy/](http://nodengine.com/judy/)
+[http://zhiyu.github.io/judy/](http://zhiyu.github.io/judy/)
 
 
 Contact
